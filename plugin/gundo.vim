@@ -1,6 +1,73 @@
+" ============================================================================
+" File:        gundo.vim
+" Description: vim global plugin to visualizer your undo tree
+" Maintainer:  Steve Losh <steve@stevelosh.com>
+" License:     GPLv2+ -- look it up.
+"
+" ============================================================================
+"
+"
+"if exists('loaded_gundo') || &cp
+    "finish
+"endif
+
+"let loaded_gundo = 1
+
+if !exists('g:gundo_width')
+    let g:gundo_width = 20
+endif
+
+function! s:GundoOpenBuffer()
+    let existing_gundo_buffer = bufnr("__Gundo__")
+
+    if existing_gundo_buffer == -1
+        exe "vnew __Gundo__"
+        wincmd H
+        exe "vertical resize " . g:gundo_width
+    else
+        let existing_gundo_window = bufwinnr(existing_gundo_buffer)
+
+        if existing_gundo_window != -1
+            if winnr() != existing_gundo_window
+                exe existing_gundo_window . "wincmd w"
+            endif
+        else
+            exe "vsplit +buffer" . existing_gundo_buffer
+            wincmd H
+            exe "vertical resize " . g:gundo_width
+        endif
+    endif
+endfunction
+
+function! s:GundoToggle()
+    if expand('%') == "__Gundo__"
+        quit
+    else
+        GundoRender
+    endif
+endfunction
+
+
+function! s:GundoMarkBuffer()
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal buflisted
+    setlocal nomodifiable
+endfunction
+
+
+
+
+
+
+
+
+
+
+function! s:GundoRender()
 python << ENDPYTHON
 import vim
-from pprint import pprint
 
 normal = lambda s: vim.command('normal %s' % s)
 
@@ -334,12 +401,11 @@ def generate(dag, edgefn):
 dag = sorted(nodes, key=lambda n: int(n.n), reverse=True) + [root]
 result = generate(walk_nodes(dag), asciiedges).splitlines()
 
-target_buffer = vim.current.buffer.number
-vim.command('new|wincmd H')
-vim.command('vertical resize 30')
-
-gundo_buffer = vim.current.buffer.number
+vim.command('GundoOpenBuffer')
+vim.command('setlocal modifiable')
+vim.command('normal ggdG')
 vim.current.buffer.append(result)
+vim.command('setlocal nomodifiable')
 
 i = 1
 for line in result:
@@ -350,8 +416,13 @@ for line in result:
     except ValueError:
         pass
     i += 1
-vim.command('%d' % i)
-
-vim.command('set ro')
+    vim.command('%d' % i)
 
 ENDPYTHON
+endfunction
+
+
+command! -nargs=0 GundoOpenBuffer call s:GundoOpenBuffer()
+command! -nargs=0 GundoToggle call s:GundoToggle()
+command! -nargs=0 GundoRender call s:GundoRender()
+autocmd BufNewFile __Gundo__ call s:GundoMarkBuffer()
