@@ -332,7 +332,26 @@ def generate(dag, edgefn):
     return buf.b
 
 dag = sorted(nodes, key=lambda n: int(n.n), reverse=True) + [root]
-result = generate(walk_nodes(dag), asciiedges)
-print result
+result = generate(walk_nodes(dag), asciiedges).splitlines()
+
+target_buffer = vim.current.buffer.number
+vim.command('new|wincmd H')
+vim.command('vertical resize 30')
+
+gundo_buffer = vim.current.buffer.number
+vim.current.buffer.append(result)
+
+i = 1
+for line in result:
+    try:
+        line.split('[')[0].index('@')
+        i += 1
+        break
+    except ValueError:
+        pass
+    i += 1
+vim.command('%d' % i)
+
+vim.command('set ro')
 
 ENDPYTHON
