@@ -326,7 +326,7 @@ def ascii(buf, state, type, char, text, coldata):
 def generate(dag, edgefn):
     seen, state = [], [0, 0]
     buf = Buffer()
-    for node, parents in dag:
+    for node, parents in list(dag)[:-1]:
         char = '@' if node.n == int(current) else 'o'
         ascii(buf, state, 'C', char, ['[%s]' % str(node.n)], edgefn(seen, node, parents))
     return buf.b
