@@ -4,11 +4,12 @@
 " Maintainer:  Steve Losh <steve@stevelosh.com>
 " License:     GPLv2+ -- look it up.
 " Notes:       Much of this code was thiefed from Mercurial, and the rest was
-"              heavily inspired by scratch.vim.
+"              heavily inspired by scratch.vim and histwin.vim.
 "
 " ============================================================================
-"
-"
+
+
+"{{{ Init
 "if exists('loaded_gundo') || &cp
     "finish
 "endif
@@ -18,7 +19,9 @@
 if !exists('g:gundo_width')
     let g:gundo_width = 45
 endif
+"}}}
 
+"{{{ Movement Mappings
 function! s:GundoMoveUp()
     call cursor(line('.') - 2, 0)
 
@@ -30,6 +33,8 @@ function! s:GundoMoveUp()
     else
         call cursor(0, idx2 + 1)
     endif
+
+    call s:GundoRenderPreview()
 endfunction
 
 function! s:GundoMoveDown()
@@ -43,6 +48,18 @@ function! s:GundoMoveDown()
     else
         call cursor(0, idx2 + 1)
     endif
+
+    call s:GundoRenderPreview()
+endfunction
+"}}}
+
+"{{{ Buffer/Window Management
+function! s:GundoResizeBuffers(backto)
+    exe bufwinnr(bufwinnr('__Gundo__')) . "wincmd w"
+    exe "vertical resize " . g:gundo_width
+    exe bufwinnr(bufwinnr('__Gundo_Preview__')) . "wincmd w"
+    exe "vertical resize " . 40
+    exe a:backto . "wincmd w"
 endfunction
 
 function! s:GundoOpenBuffer()
@@ -51,7 +68,7 @@ function! s:GundoOpenBuffer()
     if existing_gundo_buffer == -1
         exe "vnew __Gundo__"
         wincmd H
-        exe "vertical resize " . g:gundo_width
+        call s:GundoResizeBuffers(winnr())
         nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
         nnoremap <script> <silent> <buffer> j     :call <sid>GundoMoveDown()<CR>
         nnoremap <script> <silent> <buffer> k     :call <sid>GundoMoveUp()<CR>
@@ -65,29 +82,34 @@ function! s:GundoOpenBuffer()
         else
             exe "vsplit +buffer" . existing_gundo_buffer
             wincmd H
-            exe "vertical resize " . g:gundo_width
+            call s:GundoResizeBuffers(winnr())
         endif
     endif
-endfunction
-
-function! s:GundoRevert()
-    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
-    let target_num = matchstr(target_line, '\v[0-9]+')
-    let back = bufwinnr(s:gundo_back)
-    exe back . "wincmd w"
-    exe "undo " . target_num
-    GundoRender
-    exe back . "wincmd w"
 endfunction
 
 function! s:GundoToggle()
     if expand('%') == "__Gundo__"
         quit
-        exe bufwinnr(s:gundo_back) . "wincmd w"
+        exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+        quit
+        exe bufwinnr(g:gundo_target_n) . "wincmd w"
     else
-        let s:gundo_back = bufnr('')
+        if expand('%') != "__Gundo_Preview__"
+            let g:gundo_target_n = bufnr('')
+            let g:gundo_target_f = @%
+        endif
+        call s:GundoOpenPreview()
+        exe bufwinnr(g:gundo_target_n) . "wincmd w"
         GundoRender
     endif
+endfunction
+
+function! s:GundoMarkPreviewBuffer()
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal buflisted
+    setlocal nomodifiable
 endfunction
 
 function! s:GundoMarkBuffer()
@@ -117,98 +139,41 @@ function! s:GundoSyntax()
     hi def link GundoNumber Identifier
 endfunction
 
+function! s:GundoOpenPreview()
+    let existing_preview_buffer = bufnr("__Gundo_Preview__")
 
+    if existing_preview_buffer == -1
+        exe "vnew __Gundo_Preview__"
+        wincmd H
+    else
+        let existing_preview_window = bufwinnr(existing_preview_buffer)
 
+        if existing_preview_window != -1
+            if winnr() != existing_preview_window
+                exe existing_preview_window . "wincmd w"
+            endif
+        else
+            exe "vsplit +buffer" . existing_preview_buffer
+            wincmd H
+        endif
+    endif
+endfunction
+"}}}
 
+"{{{ Undo/Redo Commands
+function! s:GundoRevert()
+    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
+    let target_num = matchstr(target_line, '\v[0-9]+')
+    let back = bufwinnr(g:gundo_target_n)
+    exe back . "wincmd w"
+    exe "undo " . target_num
+    GundoRender
+    exe back . "wincmd w"
+endfunction
+"}}}
 
-
-
-
-function! s:GundoRender()
+"{{{ Mercurial's Graphlog Code
 python << ENDPYTHON
-import vim
-import itertools, time
-
-normal = lambda s: vim.command('normal %s' % s)
-
-ut = vim.eval('undotree()')
-tip = ut['seq_last']
-entries = ut['entries']
-
-class Buffer(object):
-    def __init__(self):
-        self.b = ''
-
-    def write(self, s):
-        self.b += s
-
-class Node(object):
-    def __init__(self, n, parent, time, curhead):
-        self.n = int(n)
-        self.parent = parent
-        self.children = []
-        self.curhead = curhead
-        self.time = time
-
-root = Node(0, None, False, 0)
-
-nodes = []
-def make_nodes(alts, parent=None):
-    p = parent
-
-    for alt in alts:
-        curhead = True if 'curhead' in alt else False
-        node = Node(n=alt['seq'], parent=p, time=alt['time'], curhead=curhead)
-        nodes.append(node)
-        if alt.get('alt'):
-            make_nodes(alt['alt'], parent=p)
-        p = node
-
-    return nodes
-make_nodes(entries, root)
-
-for node in nodes:
-    node.children = [n for n in nodes if n.parent == node]
-
-tips = [node for node in nodes if not node.children]
-
-agescales = [("year", 3600 * 24 * 365),
-             ("month", 3600 * 24 * 30),
-             ("week", 3600 * 24 * 7),
-             ("day", 3600 * 24),
-             ("hour", 3600),
-             ("minute", 60),
-             ("second", 1)]
-
-def age(ts):
-    '''turn a timestamp into an age string.'''
-
-    def plural(t, c):
-        if c == 1:
-            return t
-        return t + "s"
-    def fmt(t, c):
-        return "%d %s" % (c, plural(t, c))
-
-    now = time.time()
-    then = ts
-    if then > now:
-        return 'in the future'
-
-    delta = max(1, int(now - then))
-    if delta > agescales[0][1] * 2:
-        return time.strftime('%Y-%m-%d', time.gmtime(float(ts)))
-
-    for t, s in agescales:
-        n = delta // s
-        if n >= 2 or s == 1:
-            return '%s ago' % fmt(t, n)
-
-
-def walk_nodes(nodes):
-    for node in nodes:
-        yield(node, [node.parent] if node.parent else [])
-
 def asciiedges(seen, rev, parents):
     """adds edge info to changelog DAG walk suitable for ascii()"""
     if rev not in seen:
@@ -270,7 +235,7 @@ def ascii(buf, state, type, char, text, coldata):
 
     takes the following arguments (one call per node in the graph):
 
-      - ui to write to
+      - buffer to write to
       - Somewhere to keep the needed state in (init to asciistate())
       - Column of the current node in the set of ongoing edges.
       - Type indicator of node data == ASCIIDATA.
@@ -481,6 +446,117 @@ def generate(dag, edgefn, current):
         char = '@' if node.n == current else 'o'
         ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents))
     return buf.b
+ENDPYTHON
+"}}}
+
+"{{{ Mercurial utility functions
+python << ENDPYTHON
+agescales = [("year", 3600 * 24 * 365),
+             ("month", 3600 * 24 * 30),
+             ("week", 3600 * 24 * 7),
+             ("day", 3600 * 24),
+             ("hour", 3600),
+             ("minute", 60),
+             ("second", 1)]
+
+def age(ts):
+    '''turn a timestamp into an age string.'''
+
+    def plural(t, c):
+        if c == 1:
+            return t
+        return t + "s"
+    def fmt(t, c):
+        return "%d %s" % (c, plural(t, c))
+
+    now = time.time()
+    then = ts
+    if then > now:
+        return 'in the future'
+
+    delta = max(1, int(now - then))
+    if delta > agescales[0][1] * 2:
+        return time.strftime('%Y-%m-%d', time.gmtime(float(ts)))
+
+    for t, s in agescales:
+        n = delta // s
+        if n >= 2 or s == 1:
+            return '%s ago' % fmt(t, n)
+ENDPYTHON
+"}}}
+
+"{{{ Python Vim utility functions
+python << ENDPYTHON
+import vim
+
+normal = lambda s: vim.command('normal %s' % s)
+
+def _goto_window_for_buffer(b):
+    w = vim.eval('bufwinnr(%d)' % int(b))
+    vim.command('%dwincmd w' % int(w))
+
+def _goto_window_for_buffer_name(bn):
+    b = vim.eval('bufnr("%s")' % bn)
+    _goto_window_for_buffer(b)
+
+ENDPYTHON
+"}}}
+
+"{{{ Python undo tree data structures and functions
+python << ENDPYTHON
+class Buffer(object):
+    def __init__(self):
+        self.b = ''
+
+    def write(self, s):
+        self.b += s
+
+class Node(object):
+    def __init__(self, n, parent, time, curhead):
+        self.n = int(n)
+        self.parent = parent
+        self.children = []
+        self.curhead = curhead
+        self.time = time
+
+def _make_nodes(alts, nodes, parent=None):
+    p = parent
+
+    for alt in alts:
+        curhead = True if 'curhead' in alt else False
+        node = Node(n=alt['seq'], parent=p, time=alt['time'], curhead=curhead)
+        nodes.append(node)
+        if alt.get('alt'):
+            _make_nodes(alt['alt'], nodes, p)
+        p = node
+
+def make_nodes(entries):
+    root = Node(0, None, False, 0)
+    nodes = []
+    _make_nodes(entries, nodes, root)
+    return (root, nodes)
+
+ENDPYTHON
+"}}}
+
+"{{{ Graph rendering
+function! s:GundoRender()
+python << ENDPYTHON
+import itertools, time
+
+ut = vim.eval('undotree()')
+entries = ut['entries']
+
+root, nodes = make_nodes(entries)
+
+for node in nodes:
+    node.children = [n for n in nodes if n.parent == node]
+
+tips = [node for node in nodes if not node.children]
+
+def walk_nodes(nodes):
+    for node in nodes:
+        yield(node, [node.parent] if node.parent else [])
 
 dag = sorted(nodes, key=lambda n: int(n.n), reverse=True) + [root]
 
@@ -493,16 +569,18 @@ else:
 result = generate(walk_nodes(dag), asciiedges, current).splitlines()
 result = [' ' + l for l in result]
 
-INLINE_HELP = '''\
+current = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
+INLINE_HELP = ('''\
+" Gundo for %s [%d]
 " j/k  - move between undo states
 " <cr> - revert to that state
 
-'''.splitlines()
+''' % current).splitlines()
 
 vim.command('GundoOpenBuffer')
 vim.command('setlocal modifiable')
 vim.command('normal ggdG')
-vim.current.buffer.append(INLINE_HELP + result)
+vim.current.buffer[:] = (INLINE_HELP + result)
 vim.command('setlocal nomodifiable')
 
 i = 1
@@ -518,9 +596,32 @@ vim.command('%d' % (i+3))
 
 ENDPYTHON
 endfunction
+"}}}
 
+"{{{ Preview Rendering
+function! s:GundoRenderPreview()
+python << ENDPYTHON
+import vim
 
+_goto_window_for_buffer(vim.eval('g:gundo_target_n'))
+
+root, nodes = make_nodes(entries)
+
+_curhead_l = list(itertools.dropwhile(lambda n: not n.curhead, nodes))
+if _curhead_l:
+    current = _curhead_l[0].parent.n
+else:
+    current = int(vim.eval('changenr()'))
+
+print current
+ENDPYTHON
+endfunction
+"}}}
+
+"{{{ Misc
 command! -nargs=0 GundoOpenBuffer call s:GundoOpenBuffer()
 command! -nargs=0 GundoToggle call s:GundoToggle()
 command! -nargs=0 GundoRender call s:GundoRender()
 autocmd BufNewFile __Gundo__ call s:GundoMarkBuffer()
+autocmd BufNewFile __Gundo_Preview__ call s:GundoMarkPreviewBuffer()
+"}}}
