@@ -16,7 +16,7 @@
 "let loaded_gundo = 1
 
 if !exists('g:gundo_width')
-    let g:gundo_width = 40
+    let g:gundo_width = 45
 endif
 
 function! s:GundoOpenBuffer()
@@ -50,6 +50,8 @@ function! s:GundoRevert()
     let back = bufwinnr(s:gundo_back)
     exe back . "wincmd w"
     exe "undo " . target_num
+    GundoRender
+    exe back . "wincmd w"
 endfunction
 
 function! s:GundoToggle()
@@ -68,9 +70,23 @@ function! s:GundoMarkBuffer()
     setlocal noswapfile
     setlocal buflisted
     setlocal nomodifiable
+    setlocal filetype=gundo
+    call s:GundoSyntax()
 endfunction
 
+function! s:GundoSyntax()
+    let b:current_syntax = 'gundo'
 
+    syn match GundoCurrentLocation '@'
+    syn match GundoHelp '\v^".*$'
+    syn match GundoNumberField '\v\[[0-9]+\]'
+    syn match GundoNumber '\v[0-9]+' contained containedin=GundoNumberField
+
+    hi def link GundoCurrentLocation Keyword
+    hi def link GundoHelp Comment
+    hi def link GundoNumberField Comment
+    hi def link GundoNumber Identifier
+endfunction
 
 
 
@@ -447,10 +463,16 @@ else:
 
 result = generate(walk_nodes(dag), asciiedges, current).splitlines()
 
+INLINE_HELP = '''\
+" j/k  - move between undo states
+" <cr> - revert to that state
+
+'''.splitlines()
+
 vim.command('GundoOpenBuffer')
 vim.command('setlocal modifiable')
 vim.command('normal ggdG')
-vim.current.buffer.append(result)
+vim.current.buffer.append(INLINE_HELP + result)
 vim.command('setlocal nomodifiable')
 
 i = 1
@@ -462,7 +484,7 @@ for line in result:
     except ValueError:
         pass
     i += 1
-vim.command('%d' % i)
+vim.command('%d' % (i+3))
 
 ENDPYTHON
 endfunction
