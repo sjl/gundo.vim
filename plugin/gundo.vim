@@ -573,13 +573,13 @@ current = changenr(nodes)
 result = generate(walk_nodes(dag), asciiedges, current).splitlines()
 result = [' ' + l for l in result]
 
-current = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
+target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
 INLINE_HELP = ('''\
 " Gundo for %s [%d]
 " j/k  - move between undo states
 " <cr> - revert to that state
 
-''' % current).splitlines()
+''' % target).splitlines()
 
 vim.command('GundoOpenBuffer')
 vim.command('setlocal modifiable')
