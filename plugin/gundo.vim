@@ -449,8 +449,10 @@ def generate(dag, edgefn, current):
 ENDPYTHON
 "}}}
 
-"{{{ Mercurial utility functions
+"{{{ Mercurial age function
 python << ENDPYTHON
+import time
+
 agescales = [("year", 3600 * 24 * 365),
              ("month", 3600 * 24 * 30),
              ("week", 3600 * 24 * 7),
@@ -498,12 +500,13 @@ def _goto_window_for_buffer(b):
 def _goto_window_for_buffer_name(bn):
     b = vim.eval('bufnr("%s")' % bn)
     _goto_window_for_buffer(b)
-
 ENDPYTHON
 "}}}
 
 "{{{ Python undo tree data structures and functions
 python << ENDPYTHON
+import itertools
+
 class Buffer(object):
     def __init__(self):
         self.b = ''
@@ -536,13 +539,19 @@ def make_nodes(entries):
     _make_nodes(entries, nodes, root)
     return (root, nodes)
 
+def changenr(nodes):
+    _curhead_l = list(itertools.dropwhile(lambda n: not n.curhead, nodes))
+    if _curhead_l:
+        current = _curhead_l[0].parent.n
+    else:
+        current = int(vim.eval('changenr()'))
+    return current
 ENDPYTHON
 "}}}
 
 "{{{ Graph rendering
 function! s:GundoRender()
 python << ENDPYTHON
-import itertools, time
 
 ut = vim.eval('undotree()')
 entries = ut['entries']
@@ -559,12 +568,7 @@ def walk_nodes(nodes):
         yield(node, [node.parent] if node.parent else [])
 
 dag = sorted(nodes, key=lambda n: int(n.n), reverse=True) + [root]
-
-_curhead_l = list(itertools.dropwhile(lambda n: not n.curhead, dag))
-if _curhead_l:
-    current = _curhead_l[0].parent.n
-else:
-    current = int(vim.eval('changenr()'))
+current = changenr(nodes)
 
 result = generate(walk_nodes(dag), asciiedges, current).splitlines()
 result = [' ' + l for l in result]
@@ -606,12 +610,7 @@ import vim
 _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
 
 root, nodes = make_nodes(entries)
-
-_curhead_l = list(itertools.dropwhile(lambda n: not n.curhead, nodes))
-if _curhead_l:
-    current = _curhead_l[0].parent.n
-else:
-    current = int(vim.eval('changenr()'))
+current = changenr(nodes)
 
 print current
 ENDPYTHON
