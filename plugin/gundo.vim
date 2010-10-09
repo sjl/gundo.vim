@@ -26,6 +26,9 @@ function! s:GundoOpenBuffer()
         exe "vnew __Gundo__"
         wincmd H
         exe "vertical resize " . g:gundo_width
+        nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
+        nnoremap <script> <silent> <buffer> j     jj0f[hhh
+        nnoremap <script> <silent> <buffer> k     kk0f[hhh
     else
         let existing_gundo_window = bufwinnr(existing_gundo_buffer)
 
@@ -41,12 +44,20 @@ function! s:GundoOpenBuffer()
     endif
 endfunction
 
+function! s:GundoRevert()
+    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
+    let target_num = matchstr(target_line, '\v[0-9]+')
+    let back = bufwinnr(s:gundo_back)
+    exe back . "wincmd w"
+    exe "undo " . target_num
+endfunction
+
 function! s:GundoToggle()
     if expand('%') == "__Gundo__"
         quit
-        exe s:gundo_back . "wincmd w"
+        exe bufwinnr(s:gundo_back) . "wincmd w"
     else
-        let s:gundo_back = winnr()
+        let s:gundo_back = bufnr('')
         GundoRender
     endif
 endfunction
@@ -451,7 +462,7 @@ for line in result:
     except ValueError:
         pass
     i += 1
-    vim.command('%d' % i)
+vim.command('%d' % i)
 
 ENDPYTHON
 endfunction
