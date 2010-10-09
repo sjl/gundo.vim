@@ -34,7 +34,9 @@ function! s:GundoMoveUp()
         call cursor(0, idx2 + 1)
     endif
 
-    call s:GundoRenderPreview()
+    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
+    let target_num = matchstr(target_line, '\v[0-9]+')
+    call s:GundoRenderPreview(target_num)
 endfunction
 
 function! s:GundoMoveDown()
@@ -49,7 +51,9 @@ function! s:GundoMoveDown()
         call cursor(0, idx2 + 1)
     endif
 
-    call s:GundoRenderPreview()
+    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
+    let target_num = matchstr(target_line, '\v[0-9]+')
+    call s:GundoRenderPreview(target_num)
 endfunction
 "}}}
 
@@ -101,6 +105,9 @@ function! s:GundoToggle()
         call s:GundoOpenPreview()
         exe bufwinnr(g:gundo_target_n) . "wincmd w"
         GundoRender
+        let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
+        let target_num = matchstr(target_line, '\v[0-9]+')
+        call s:GundoRenderPreview(target_num)
     endif
 endfunction
 
@@ -110,6 +117,7 @@ function! s:GundoMarkPreviewBuffer()
     setlocal noswapfile
     setlocal buflisted
     setlocal nomodifiable
+    setlocal filetype=diff
 endfunction
 
 function! s:GundoMarkBuffer()
@@ -603,16 +611,35 @@ endfunction
 "}}}
 
 "{{{ Preview Rendering
-function! s:GundoRenderPreview()
+function! s:GundoRenderPreview(target)
 python << ENDPYTHON
-import vim
+import difflib
 
 _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
 
 root, nodes = make_nodes(entries)
 current = changenr(nodes)
 
-print current
+target_n = int(vim.eval('a:target'))
+node_after = [node for node in nodes if node.n == target_n][0]
+node_before = node_after.parent
+
+vim.command('silent undo %d' % node_before.n)
+before = vim.current.buffer[:]
+vim.command('silent undo %d' % node_after.n)
+after = vim.current.buffer[:]
+vim.command('silent undo %d' % current)
+
+_goto_window_for_buffer_name('__Gundo_Preview__')
+vim.command('setlocal modifiable')
+
+diff = list(difflib.unified_diff(before, after, node_before.n, node_after.n))
+vim.current.buffer[:] = diff
+
+vim.command('setlocal nomodifiable')
+
+_goto_window_for_buffer_name('__Gundo__')
+
 ENDPYTHON
 endfunction
 "}}}
