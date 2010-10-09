@@ -19,6 +19,32 @@ if !exists('g:gundo_width')
     let g:gundo_width = 45
 endif
 
+function! s:GundoMoveUp()
+    call cursor(line('.') - 2, 0)
+
+    let line = getline('.')
+    let idx1 = stridx(line, '@')
+    let idx2 = stridx(line, 'o')
+    if idx1 != -1
+        call cursor(0, idx1 + 1)
+    else
+        call cursor(0, idx2 + 1)
+    endif
+endfunction
+
+function! s:GundoMoveDown()
+    call cursor(line('.') + 2, 0)
+
+    let line = getline('.')
+    let idx1 = stridx(line, '@')
+    let idx2 = stridx(line, 'o')
+    if idx1 != -1
+        call cursor(0, idx1 + 1)
+    else
+        call cursor(0, idx2 + 1)
+    endif
+endfunction
+
 function! s:GundoOpenBuffer()
     let existing_gundo_buffer = bufnr("__Gundo__")
 
@@ -27,8 +53,8 @@ function! s:GundoOpenBuffer()
         wincmd H
         exe "vertical resize " . g:gundo_width
         nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
-        nnoremap <script> <silent> <buffer> j     jj0f[hhh
-        nnoremap <script> <silent> <buffer> k     kk0f[hhh
+        nnoremap <script> <silent> <buffer> j     :call <sid>GundoMoveDown()<CR>
+        nnoremap <script> <silent> <buffer> k     :call <sid>GundoMoveUp()<CR>
     else
         let existing_gundo_window = bufwinnr(existing_gundo_buffer)
 
@@ -71,6 +97,9 @@ function! s:GundoMarkBuffer()
     setlocal buflisted
     setlocal nomodifiable
     setlocal filetype=gundo
+    setlocal nolist
+    setlocal nonumber
+    setlocal norelativenumber
     call s:GundoSyntax()
 endfunction
 
@@ -462,6 +491,7 @@ else:
     current = int(vim.eval('changenr()'))
 
 result = generate(walk_nodes(dag), asciiedges, current).splitlines()
+result = [' ' + l for l in result]
 
 INLINE_HELP = '''\
 " j/k  - move between undo states
