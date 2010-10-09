@@ -3,6 +3,8 @@
 " Description: vim global plugin to visualizer your undo tree
 " Maintainer:  Steve Losh <steve@stevelosh.com>
 " License:     GPLv2+ -- look it up.
+" Notes:       Much of this code was thiefed from Mercurial, and the rest was
+"              heavily inspired by scratch.vim.
 "
 " ============================================================================
 "
@@ -68,46 +70,38 @@ endfunction
 function! s:GundoRender()
 python << ENDPYTHON
 import vim
+import itertools, time
 
 normal = lambda s: vim.command('normal %s' % s)
 
 ut = vim.eval('undotree()')
 tip = ut['seq_last']
-current = ut['seq_cur']
 entries = ut['entries']
 
 class Buffer(object):
     def __init__(self):
         self.b = ''
+
     def write(self, s):
         self.b += s
 
 class Node(object):
-    def __init__(self, n, parent):
+    def __init__(self, n, parent, time, curhead):
         self.n = int(n)
         self.parent = parent
         self.children = []
+        self.curhead = curhead
+        self.time = time
 
-    def pprint(self, indent=0):
-        print '%sn%d -> %s, %s\n' % (
-                  '    ' * indent,
-                  self.n,
-                  self.parent.n if self.parent else 'n/a',
-                  [c.n for c in self.children]),
-        for c in self.children:
-            c.pprint(indent+1)
-
-    def __str__(self):
-        return 'Node: %s' % str(self.n)
-
-root = Node(0, None)
+root = Node(0, None, False, 0)
 
 nodes = []
 def make_nodes(alts, parent=None):
     p = parent
 
     for alt in alts:
-        node = Node(n=alt['seq'], parent=p)
+        curhead = True if 'curhead' in alt else False
+        node = Node(n=alt['seq'], parent=p, time=alt['time'], curhead=curhead)
         nodes.append(node)
         if alt.get('alt'):
             make_nodes(alt['alt'], parent=p)
@@ -120,6 +114,38 @@ for node in nodes:
     node.children = [n for n in nodes if n.parent == node]
 
 tips = [node for node in nodes if not node.children]
+
+agescales = [("year", 3600 * 24 * 365),
+             ("month", 3600 * 24 * 30),
+             ("week", 3600 * 24 * 7),
+             ("day", 3600 * 24),
+             ("hour", 3600),
+             ("minute", 60),
+             ("second", 1)]
+
+def age(ts):
+    '''turn a timestamp into an age string.'''
+
+    def plural(t, c):
+        if c == 1:
+            return t
+        return t + "s"
+    def fmt(t, c):
+        return "%d %s" % (c, plural(t, c))
+
+    now = time.time()
+    then = ts
+    if then > now:
+        return 'in the future'
+
+    delta = max(1, int(now - then))
+    if delta > agescales[0][1] * 2:
+        return time.strftime('%Y-%m-%d', time.gmtime(float(ts)))
+
+    for t, s in agescales:
+        n = delta // s
+        if n >= 2 or s == 1:
+            return '%s ago' % fmt(t, n)
 
 
 def walk_nodes(nodes):
@@ -390,16 +416,24 @@ def ascii(buf, state, type, char, text, coldata):
     state[0] = coldiff
     state[1] = idx
 
-def generate(dag, edgefn):
+def generate(dag, edgefn, current):
     seen, state = [], [0, 0]
     buf = Buffer()
     for node, parents in list(dag)[:-1]:
-        char = '@' if node.n == int(current) else 'o'
-        ascii(buf, state, 'C', char, ['[%s]' % str(node.n)], edgefn(seen, node, parents))
+        line = '[%s] %s' % (node.n, age(int(node.time)))
+        char = '@' if node.n == current else 'o'
+        ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents))
     return buf.b
 
 dag = sorted(nodes, key=lambda n: int(n.n), reverse=True) + [root]
-result = generate(walk_nodes(dag), asciiedges).splitlines()
+
+_curhead_l = list(itertools.dropwhile(lambda n: not n.curhead, dag))
+if _curhead_l:
+    current = _curhead_l[0].parent.n
+else:
+    current = int(vim.eval('changenr()'))
+
+result = generate(walk_nodes(dag), asciiedges, current).splitlines()
 
 vim.command('GundoOpenBuffer')
 vim.command('setlocal modifiable')
