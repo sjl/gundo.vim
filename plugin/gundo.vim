@@ -16,7 +16,7 @@
 "let loaded_gundo = 1
 
 if !exists('g:gundo_width')
-    let g:gundo_width = 20
+    let g:gundo_width = 40
 endif
 
 function! s:GundoOpenBuffer()
@@ -44,11 +44,12 @@ endfunction
 function! s:GundoToggle()
     if expand('%') == "__Gundo__"
         quit
+        exe s:gundo_back . "wincmd w"
     else
+        let s:gundo_back = winnr()
         GundoRender
     endif
 endfunction
-
 
 function! s:GundoMarkBuffer()
     setlocal buftype=nofile
