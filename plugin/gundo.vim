@@ -23,11 +23,14 @@ endif
 
 "{{{ Movement Mappings
 function! s:GundoMoveUp()
+    let start_line = getline('.')
     if line('.') - 2 <= 4
-        return
+        call cursor(5, 0)
+    elseif stridx(start_line, '[') == -1
+        call cursor(line('.') - 1, 0)
+    else
+        call cursor(line('.') - 2, 0)
     endif
-
-    call cursor(line('.') - 2, 0)
 
     let line = getline('.')
     let idx1 = stridx(line, '@')
@@ -44,11 +47,14 @@ function! s:GundoMoveUp()
 endfunction
 
 function! s:GundoMoveDown()
+    let start_line = getline('.')
     if line('.') + 2 >= line('$')
-        return
+        call cursor(line('$') - 1, 0)
+    elseif stridx(start_line, '[') == -1
+        call cursor(line('.') + 1, 0)
+    else
+        call cursor(line('.') + 2, 0)
     endif
-
-    call cursor(line('.') + 2, 0)
 
     let line = getline('.')
     let idx1 = stridx(line, '@')
