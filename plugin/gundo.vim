@@ -23,6 +23,10 @@ endif
 
 "{{{ Movement Mappings
 function! s:GundoMoveUp()
+    if line('.') - 2 <= 4
+        return
+    endif
+
     call cursor(line('.') - 2, 0)
 
     let line = getline('.')
@@ -40,6 +44,10 @@ function! s:GundoMoveUp()
 endfunction
 
 function! s:GundoMoveDown()
+    if line('.') + 2 >= line('$')
+        return
+    endif
+
     call cursor(line('.') + 2, 0)
 
     let line = getline('.')
