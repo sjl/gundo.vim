@@ -1,6 +1,6 @@
 " ============================================================================
 " File:        gundo.vim
-" Description: vim global plugin to visualizer your undo tree
+" Description: vim global plugin to visualize your undo tree
 " Maintainer:  Steve Losh <steve@stevelosh.com>
 " License:     GPLv2+ -- look it up.
 " Notes:       Much of this code was thiefed from Mercurial, and the rest was
