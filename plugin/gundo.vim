@@ -508,6 +508,13 @@ def _goto_window_for_buffer(b):
 def _goto_window_for_buffer_name(bn):
     b = vim.eval('bufnr("%s")' % bn)
     _goto_window_for_buffer(b)
+
+INLINE_HELP = '''\
+" Gundo for %s [%d]
+" j/k  - move between undo states
+" <cr> - revert to that state
+
+'''
 ENDPYTHON
 "}}}
 
@@ -561,51 +568,48 @@ ENDPYTHON
 function! s:GundoRender()
 python << ENDPYTHON
 
-ut = vim.eval('undotree()')
-entries = ut['entries']
+def GundoRender():
+    ut = vim.eval('undotree()')
+    entries = ut['entries']
 
-root, nodes = make_nodes(entries)
+    root, nodes = make_nodes(entries)
 
-for node in nodes:
-    node.children = [n for n in nodes if n.parent == node]
-
-tips = [node for node in nodes if not node.children]
-
-def walk_nodes(nodes):
     for node in nodes:
-        yield(node, [node.parent] if node.parent else [])
+        node.children = [n for n in nodes if n.parent == node]
 
-dag = sorted(nodes, key=lambda n: int(n.n), reverse=True) + [root]
-current = changenr(nodes)
+    tips = [node for node in nodes if not node.children]
 
-result = generate(walk_nodes(dag), asciiedges, current).splitlines()
-result = [' ' + l for l in result]
+    def walk_nodes(nodes):
+        for node in nodes:
+            yield(node, [node.parent] if node.parent else [])
 
-target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
-INLINE_HELP = ('''\
-" Gundo for %s [%d]
-" j/k  - move between undo states
-" <cr> - revert to that state
+    dag = sorted(nodes, key=lambda n: int(n.n), reverse=True) + [root]
+    current = changenr(nodes)
 
-''' % target).splitlines()
+    result = generate(walk_nodes(dag), asciiedges, current).splitlines()
+    result = [' ' + l for l in result]
 
-vim.command('GundoOpenBuffer')
-vim.command('setlocal modifiable')
-vim.command('normal ggdG')
-vim.current.buffer[:] = (INLINE_HELP + result)
-vim.command('setlocal nomodifiable')
+    target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
+    header = (INLINE_HELP % target).splitlines()
 
-i = 1
-for line in result:
-    try:
-        line.split('[')[0].index('@')
+    vim.command('GundoOpenBuffer')
+    vim.command('setlocal modifiable')
+    vim.command('normal ggdG')
+    vim.current.buffer[:] = (header + result)
+    vim.command('setlocal nomodifiable')
+
+    i = 1
+    for line in result:
+        try:
+            line.split('[')[0].index('@')
+            i += 1
+            break
+        except ValueError:
+            pass
         i += 1
-        break
-    except ValueError:
-        pass
-    i += 1
-vim.command('%d' % (i+3))
+    vim.command('%d' % (i+len(header)-1))
 
+GundoRender()
 ENDPYTHON
 endfunction
 "}}}
@@ -615,31 +619,36 @@ function! s:GundoRenderPreview(target)
 python << ENDPYTHON
 import difflib
 
-_goto_window_for_buffer(vim.eval('g:gundo_target_n'))
+def GundoRenderPreview():
+    _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
 
-root, nodes = make_nodes(entries)
-current = changenr(nodes)
+    root, nodes = make_nodes(entries)
+    current = changenr(nodes)
 
-target_n = int(vim.eval('a:target'))
-node_after = [node for node in nodes if node.n == target_n][0]
-node_before = node_after.parent
+    target_n = int(vim.eval('a:target'))
+    node_after = [node for node in nodes if node.n == target_n][0]
+    node_before = node_after.parent
 
-vim.command('silent undo %d' % node_before.n)
-before = vim.current.buffer[:]
-vim.command('silent undo %d' % node_after.n)
-after = vim.current.buffer[:]
-vim.command('silent undo %d' % current)
+    if not node_before.n:
+        before = []
+    else:
+        vim.command('silent undo %d' % node_before.n)
+        before = vim.current.buffer[:]
+    vim.command('silent undo %d' % node_after.n)
+    after = vim.current.buffer[:]
+    vim.command('silent undo %d' % current)
 
-_goto_window_for_buffer_name('__Gundo_Preview__')
-vim.command('setlocal modifiable')
+    _goto_window_for_buffer_name('__Gundo_Preview__')
+    vim.command('setlocal modifiable')
 
-diff = list(difflib.unified_diff(before, after, node_before.n, node_after.n))
-vim.current.buffer[:] = diff
+    diff = list(difflib.unified_diff(before, after, node_before.n, node_after.n))
+    vim.current.buffer[:] = diff
 
-vim.command('setlocal nomodifiable')
+    vim.command('setlocal nomodifiable')
 
-_goto_window_for_buffer_name('__Gundo__')
+    _goto_window_for_buffer_name('__Gundo__')
 
+GundoRenderPreview()
 ENDPYTHON
 endfunction
 "}}}
