@@ -25,6 +25,7 @@ endif
 function! s:GundoMove(direction)
     let start_line = getline('.')
 
+    " If we're in between two nodes we move by one to get back on track.
     if stridx(start_line, '[') == -1
         let distance = 1
     else
@@ -33,6 +34,7 @@ function! s:GundoMove(direction)
 
     let target_n = line('.') + (distance * a:direction)
 
+    " Bound the movement to the graph.
     if target_n <= 4
         call cursor(5, 0)
     elseif target_n >= line('$')
@@ -42,6 +44,8 @@ function! s:GundoMove(direction)
     endif
 
     let line = getline('.')
+
+    " Move to the node, whether it's an @ or an o
     let idx1 = stridx(line, '@')
     let idx2 = stridx(line, 'o')
     if idx1 != -1
@@ -58,6 +62,7 @@ endfunction
 
 "{{{ Buffer/Window Management
 function! s:GundoResizeBuffers(backto)
+    " This sucks and doesn't work. TODO: Fix it.
     exe bufwinnr(bufwinnr('__Gundo__')) . "wincmd w"
     exe "vertical resize " . g:gundo_width
     exe bufwinnr(bufwinnr('__Gundo_Preview__')) . "wincmd w"
@@ -94,18 +99,31 @@ endfunction
 
 function! s:GundoToggle()
     if expand('%') == "__Gundo__"
+        " TODO: Add some sanity checks here.
         quit
         exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
         quit
         exe bufwinnr(g:gundo_target_n) . "wincmd w"
     else
         if expand('%') != "__Gundo_Preview__"
+            " Record the previous buffer number.
+            "
+            " This sucks because we're not getting the window number, and there
+            " may be more than one window viewing the same buffer, so we might
+            " go back to the wrong one.
+            "
+            " Unfortunately window numbers change as we open more windows.
+            "
+            " TODO: Figure out how to fix this.
             let g:gundo_target_n = bufnr('')
             let g:gundo_target_f = @%
         endif
+
         call s:GundoOpenPreview()
         exe bufwinnr(g:gundo_target_n) . "wincmd w"
         GundoRender
+
+        " TODO: Move these lines into RenderPreview
         let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
         let target_num = matchstr(target_line, '\v[0-9]+')
         call s:GundoRenderPreview(target_num)
@@ -119,6 +137,7 @@ function! s:GundoMarkPreviewBuffer()
     setlocal buflisted
     setlocal nomodifiable
     setlocal filetype=diff
+    " TODO: Set foldmethod?
 endfunction
 
 function! s:GundoMarkBuffer()
@@ -549,7 +568,10 @@ def _make_nodes(alts, nodes, parent=None):
             _make_nodes(alt['alt'], nodes, p)
         p = node
 
-def make_nodes(entries):
+def make_nodes():
+    ut = vim.eval('undotree()')
+    entries = ut['entries']
+
     root = Node(0, None, False, 0)
     nodes = []
     _make_nodes(entries, nodes, root)
@@ -570,10 +592,7 @@ function! s:GundoRender()
 python << ENDPYTHON
 
 def GundoRender():
-    ut = vim.eval('undotree()')
-    entries = ut['entries']
-
-    root, nodes = make_nodes(entries)
+    root, nodes = make_nodes()
 
     for node in nodes:
         node.children = [n for n in nodes if n.parent == node]
@@ -622,10 +641,7 @@ import difflib
 def GundoRenderPreview():
     _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
 
-    ut = vim.eval('undotree()')
-    entries = ut['entries']
-
-    root, nodes = make_nodes(entries)
+    root, nodes = make_nodes()
     current = changenr(nodes)
 
     target_n = int(vim.eval('a:target'))
@@ -637,13 +653,16 @@ def GundoRenderPreview():
     else:
         vim.command('silent undo %d' % node_before.n)
         before = vim.current.buffer[:]
+
     vim.command('silent undo %d' % node_after.n)
     after = vim.current.buffer[:]
+
     vim.command('silent undo %d' % current)
 
     _goto_window_for_buffer_name('__Gundo_Preview__')
     vim.command('setlocal modifiable')
 
+    # TODO: Make some nice dates from Node.time to give to difflib.
     diff = list(difflib.unified_diff(before, after, node_before.n, node_after.n))
     vim.current.buffer[:] = diff
 
