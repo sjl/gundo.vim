@@ -22,38 +22,23 @@ endif
 "}}}
 
 "{{{ Movement Mappings
-function! s:GundoMoveUp()
+function! s:GundoMove(direction)
     let start_line = getline('.')
-    if line('.') - 2 <= 4
+
+    if stridx(start_line, '[') == -1
+        let distance = 1
+    else
+        let distance = 2
+    endif
+
+    let target_n = line('.') + (distance * a:direction)
+
+    if target_n <= 4
         call cursor(5, 0)
-    elseif stridx(start_line, '[') == -1
-        call cursor(line('.') - 1, 0)
-    else
-        call cursor(line('.') - 2, 0)
-    endif
-
-    let line = getline('.')
-    let idx1 = stridx(line, '@')
-    let idx2 = stridx(line, 'o')
-    if idx1 != -1
-        call cursor(0, idx1 + 1)
-    else
-        call cursor(0, idx2 + 1)
-    endif
-
-    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
-    let target_num = matchstr(target_line, '\v[0-9]+')
-    call s:GundoRenderPreview(target_num)
-endfunction
-
-function! s:GundoMoveDown()
-    let start_line = getline('.')
-    if line('.') + 2 >= line('$')
+    elseif target_n >= line('$')
         call cursor(line('$') - 1, 0)
-    elseif stridx(start_line, '[') == -1
-        call cursor(line('.') + 1, 0)
     else
-        call cursor(line('.') + 2, 0)
+        call cursor(target_n, 0)
     endif
 
     let line = getline('.')
@@ -88,8 +73,10 @@ function! s:GundoOpenBuffer()
         wincmd H
         call s:GundoResizeBuffers(winnr())
         nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
-        nnoremap <script> <silent> <buffer> j     :call <sid>GundoMoveDown()<CR>
-        nnoremap <script> <silent> <buffer> k     :call <sid>GundoMoveUp()<CR>
+        nnoremap <script> <silent> <buffer> j     :call <sid>GundoMove(1)<CR>
+        nnoremap <script> <silent> <buffer> k     :call <sid>GundoMove(-1)<CR>
+        nnoremap <script> <silent> <buffer> gg    gg:call <sid>GundoMove(1)<CR>
+        nnoremap <script> <silent> <buffer> G     G:call <sid>GundoMove(-1)<CR>
     else
         let existing_gundo_window = bufwinnr(existing_gundo_buffer)
 
@@ -608,7 +595,6 @@ def GundoRender():
 
     vim.command('GundoOpenBuffer')
     vim.command('setlocal modifiable')
-    vim.command('normal ggdG')
     vim.current.buffer[:] = (header + result)
     vim.command('setlocal nomodifiable')
 
@@ -635,6 +621,9 @@ import difflib
 
 def GundoRenderPreview():
     _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
+
+    ut = vim.eval('undotree()')
+    entries = ut['entries']
 
     root, nodes = make_nodes(entries)
     current = changenr(nodes)
