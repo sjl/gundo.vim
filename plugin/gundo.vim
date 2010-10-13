@@ -75,6 +75,7 @@ function! s:GundoOpenBuffer()
 
     if existing_gundo_buffer == -1
         exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+        exe "new __Gundo__"
         call s:GundoResizeBuffers(winnr())
         nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
         nnoremap <script> <silent> <buffer> j     :call <sid>GundoMove(1)<CR>
@@ -138,6 +139,7 @@ function! s:GundoMarkPreviewBuffer()
     setlocal buflisted
     setlocal nomodifiable
     setlocal filetype=diff
+    setlocal nowrap
     " TODO: Set foldmethod?
 endfunction
 
@@ -151,6 +153,7 @@ function! s:GundoMarkBuffer()
     setlocal nolist
     setlocal nonumber
     setlocal norelativenumber
+    setlocal nowrap
     call s:GundoSyntax()
 endfunction
 
