@@ -63,10 +63,10 @@ endfunction
 "{{{ Buffer/Window Management
 function! s:GundoResizeBuffers(backto)
     " This sucks and doesn't work. TODO: Fix it.
-    exe bufwinnr(bufwinnr('__Gundo__')) . "wincmd w"
+    exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
     exe "vertical resize " . g:gundo_width
-    exe bufwinnr(bufwinnr('__Gundo_Preview__')) . "wincmd w"
-    exe "vertical resize " . 40
+    exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+    exe "resize " . 15
     exe a:backto . "wincmd w"
 endfunction
 
@@ -74,8 +74,7 @@ function! s:GundoOpenBuffer()
     let existing_gundo_buffer = bufnr("__Gundo__")
 
     if existing_gundo_buffer == -1
-        exe "vnew __Gundo__"
-        wincmd H
+        exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
         call s:GundoResizeBuffers(winnr())
         nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
         nnoremap <script> <silent> <buffer> j     :call <sid>GundoMove(1)<CR>
@@ -91,8 +90,8 @@ function! s:GundoOpenBuffer()
                 exe existing_gundo_window . "wincmd w"
             endif
         else
-            exe "vsplit +buffer" . existing_gundo_buffer
-            wincmd H
+            exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+            exe "split +buffer" . existing_gundo_buffer
             call s:GundoResizeBuffers(winnr())
         endif
     endif
