@@ -100,10 +100,11 @@ endfunction
 
 function! s:GundoToggle()
     if expand('%') == "__Gundo__"
-        " TODO: Add some sanity checks here.
         quit
-        exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
-        quit
+        if bufwinnr(bufnr('__Gundo_Preview__')) != -1
+            exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+            quit
+        endif
         exe bufwinnr(g:gundo_target_n) . "wincmd w"
     else
         if expand('%') != "__Gundo_Preview__"
