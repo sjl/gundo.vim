@@ -653,8 +653,12 @@ def GundoRenderPreview():
     _goto_window_for_buffer_name('__Gundo_Preview__')
     vim.command('setlocal modifiable')
 
-    # TODO: Make some nice dates from Node.time to give to difflib.
-    diff = list(difflib.unified_diff(before, after, node_before.n, node_after.n))
+    def _fmt_time(t):
+        return time.strftime('%Y-%m-%d %I:%M:%S %p', time.localtime(float(t)))
+
+    diff = list(difflib.unified_diff(before, after, node_before.n, node_after.n,
+                                     _fmt_time(node_before.time) if node_before.n else 'n/a',
+                                     _fmt_time(node_after.time)))
     vim.current.buffer[:] = diff
 
     vim.command('setlocal nomodifiable')
