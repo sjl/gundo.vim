@@ -558,14 +558,14 @@ def _make_nodes(alts, nodes, parent=None):
         p = node
 
 def make_nodes():
-    # TODO: We need a node mapping to get rid of nasty loops.
     ut = vim.eval('undotree()')
     entries = ut['entries']
 
     root = Node(0, None, False, 0)
     nodes = []
     _make_nodes(entries, nodes, root)
-    return (root, nodes)
+    nmap = dict((node.n, node) for node in nodes)
+    return (root, nodes, nmap)
 
 def changenr(nodes):
     # TODO: This seems to sometimes be wrong right after you open a file...
@@ -581,14 +581,11 @@ ENDPYTHON
 "{{{ Graph rendering
 function! s:GundoRender()
 python << ENDPYTHON
-
 def GundoRender():
-    root, nodes = make_nodes()
+    root, nodes, nmap = make_nodes()
 
     for node in nodes:
         node.children = [n for n in nodes if n.parent == node]
-
-    tips = [node for node in nodes if not node.children]
 
     def walk_nodes(nodes):
         for node in nodes:
@@ -632,11 +629,11 @@ import difflib
 def GundoRenderPreview():
     _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
 
-    root, nodes = make_nodes()
+    root, nodes, nmap = make_nodes()
     current = changenr(nodes)
 
     target_n = int(vim.eval('a:target'))
-    node_after = [node for node in nodes if node.n == target_n][0]
+    node_after = nmap[target_n]
     node_before = node_after.parent
 
     if not node_before.n:
@@ -689,15 +686,10 @@ function! s:GundoPlayTo()
 
 python << ENDPYTHON
 def GundoPlayTo():
-    root, nodes = make_nodes()
+    root, nodes, nmap = make_nodes()
 
-    def _find_node(nodes, n):
-        for node in nodes:
-            if node.n == n:
-                return node
-
-    start = _find_node(nodes, changenr(nodes))
-    end = _find_node(nodes, int(vim.eval('target_num')))
+    start = nmap[changenr(nodes)]
+    end = nmap[int(vim.eval('target_num'))]
 
     def _walk_branch(origin, dest):
         rev = origin.n < dest.n
