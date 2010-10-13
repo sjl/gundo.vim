@@ -82,6 +82,7 @@ function! s:GundoOpenBuffer()
         nnoremap <script> <silent> <buffer> k     :call <sid>GundoMove(-1)<CR>
         nnoremap <script> <silent> <buffer> gg    gg:call <sid>GundoMove(1)<CR>
         nnoremap <script> <silent> <buffer> G     G:call <sid>GundoMove(-1)<CR>
+        nnoremap <script> <silent> <buffer> P     :call <sid>GundoPlayTo()<CR>
     else
         let existing_gundo_window = bufwinnr(existing_gundo_buffer)
 
@@ -185,18 +186,6 @@ function! s:GundoOpenPreview()
             wincmd H
         endif
     endif
-endfunction
-"}}}
-
-"{{{ Undo/Redo Commands
-function! s:GundoRevert()
-    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
-    let target_num = matchstr(target_line, '\v[0-9]+')
-    let back = bufwinnr(g:gundo_target_n)
-    exe back . "wincmd w"
-    exe "undo " . target_num
-    GundoRender
-    exe back . "wincmd w"
 endfunction
 "}}}
 
@@ -569,6 +558,7 @@ def _make_nodes(alts, nodes, parent=None):
         p = node
 
 def make_nodes():
+    # TODO: We need a node mapping to get rid of nasty loops.
     ut = vim.eval('undotree()')
     entries = ut['entries']
 
@@ -578,6 +568,7 @@ def make_nodes():
     return (root, nodes)
 
 def changenr(nodes):
+    # TODO: This seems to sometimes be wrong right after you open a file...
     _curhead_l = list(itertools.dropwhile(lambda n: not n.curhead, nodes))
     if _curhead_l:
         current = _curhead_l[0].parent.n
@@ -671,6 +662,72 @@ def GundoRenderPreview():
     _goto_window_for_buffer_name('__Gundo__')
 
 GundoRenderPreview()
+ENDPYTHON
+endfunction
+"}}}
+
+"{{{ Undo/Redo Commands
+function! s:GundoRevert()
+    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
+    let target_num = matchstr(target_line, '\v[0-9]+')
+    let back = bufwinnr(g:gundo_target_n)
+    exe back . "wincmd w"
+    exe "undo " . target_num
+    GundoRender
+    exe back . "wincmd w"
+endfunction
+
+function! s:GundoPlayTo()
+    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
+    let target_num = matchstr(target_line, '\v[0-9]+')
+    let back = bufwinnr(g:gundo_target_n)
+    exe back . "wincmd w"
+
+python << ENDPYTHON
+def GundoPlayTo():
+    root, nodes = make_nodes()
+
+    def _find_node(nodes, n):
+        for node in nodes:
+            if node.n == n:
+                return node
+
+    start = _find_node(nodes, changenr(nodes))
+    end = _find_node(nodes, int(vim.eval('target_num')))
+
+    def _walk_branch(origin, dest):
+        rev = origin.n < dest.n
+
+        nodes = []
+        current = origin if origin.n > dest.n else dest
+        final = dest if origin.n > dest.n else origin
+
+        while current.n >= final.n:
+            if current.n == final.n:
+                break
+            nodes.append(current)
+            current = current.parent
+        else:
+            return None
+        nodes.append(current)
+
+        return reversed(nodes) if rev else nodes
+
+    branch = _walk_branch(start, end)
+
+    if not branch:
+        vim.command('unsilent echo "No path to that node from here!"')
+        return
+
+    for node in branch:
+        vim.command('silent undo %d' % node.n)
+        vim.command('GundoRender')
+        normal('zz')
+        vim.command('%dwincmd w' % int(vim.eval('back')))
+        vim.command('redraw')
+        vim.command('sleep 60m')
+
+GundoPlayTo()
 ENDPYTHON
 endfunction
 "}}}
