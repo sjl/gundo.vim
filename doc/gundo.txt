@@ -1,0 +1,116 @@
+*gundo.txt*   Graph your undo tree so you can actually USE it.
+
+
+                            CURRENT STATUS: ALPHA
+
+                        IT WILL PROBABLY EAT YOUR DATA
+
+      SERIOUSLY: IF YOU USE THIS PLUGIN, LOSE DATA AND COMPLAIN ABOUT IT
+                   I AM GOING TO MAKE FUN OF YOU ON TWITTER
+
+
+Making's Vim's undo tree usable by humans.
+
+==============================================================================
+1. Intro                                                *Gundo-plugin* *Gundo*
+
+You know that Vim lets you undo changes like any text editor. What you might
+not know is that it doesn't just keep a list of your changes -- it keeps
+a goddamed |:undo-tree| of them.
+
+Say you make a change (call it X), undo that change, and then make another
+change (call it Y). With most editors, change X is now gone forever. With Vim
+you can get it back.
+
+The problem is that trying to do this in the real world is painful. Vim gives
+you an |:undolist| command that shows you the leaves of the tree. Good luck
+finding the change you want in that list.
+
+Gundo is a plugin to make browsing this ridiculously powerful undo tree less
+painful.
+
+==============================================================================
+2. Usage                                                          *GundoUsage*
+
+We'll get to the technical details later, but if you're a human the first
+thing you need to do is add a mapping to your |:vimrc| to toggle the undo
+graph: >
+
+    nnoremap <F5> :GundoToggle<CR>
+
+Change the mapped key to suit your taste. We'll stick with F5 because that's
+what the author uses.
+
+Now you can press F5 to toggle the undo graph and preview pane, which will
+look something like this: >
+
+      Undo graph                          Preview pane                  File
+    +-----------------------------------+-----------------------------+--------+
+    | " Gundo for something.txt [1]     |--- 3 2010-10-12 06:27:35 PM |one     |
+    | " j/k  - move between undo states |+++ 5 2010-10-12 07:38:37 PM |two     |
+    | " <cr> - revert to that state     |@@ -1,3 +1,4                 |three   |
+    |                                   | one                         |five    |
+    | @  [5] 3 hours ago                | two                         |        |
+    | |                                 | three                       |        |
+    | | o  [4] 4 hours ago              |+five                        |        |
+    | | |                               |                             |        |
+    | o |  [3] 4 hours ago              |                             |        |
+    | | |                               |                             |        |
+    | o |  [2] 4 hours ago              |                             |        |
+    | |/                                |                             |        |
+    | o  [1] 4 hours ago                |                             |        |
+    | |                                 |                             |        |
+    +-----------------------------------+-----------------------------+--------+
+
+Your current position in the undo tree is marked with an '@' character. Other
+nodes are marked with an 'o' character.
+
+When you toggle open the graph Gundo will put your cursor on your current
+position in the tree. You can move up and down the graph with the j and
+k keys.
+
+You can move to the top of the graph (the newest state) with gg and to the
+bottom of the graph (the oldest state) with G.
+
+As you move between undo states the preview pane will show you a unified diff
+of the change that state made.
+
+Pressing enter on a state will revert the contents of the file to match that
+state.
+
+Pressing P while on a state will initiate "play to" mode targeted at that
+state. This will replay all the changes between your current state and the
+target, with a slight pause after each change. It's mostly useless, but can be
+fun to watch and see where your editing lags -- that might be a good place to
+define a new mapping to speed up your editing.
+
+
+==============================================================================
+3. License                                                      *GundoLicense*
+
+GPLv2+. Look it up.
+
+==============================================================================
+4. Bugs                                                            *GundoBugs*
+
+If you find a bug please post it on the issue tracker:
+http://bitbucket.org/sjl/gundo.vim/issues?status=new&status=open
+
+==============================================================================
+5. Contributing                                            *GundoContributing*
+
+Think you can make this plugin better? Awesome. Fork it on BitBucket or GitHub
+and send a pull request.
+
+BitBucket: http://bitbucket.org/sjl/gundo.vim/
+GitHub: http://github.com/sjl/gundo.vim/
+
+==============================================================================
+6. Credits                                                      *GundoCredits*
+
+The graphing code was all taken from Mercurial, hence the GPLv2+ license.
+
+The plugin was heavily inspired by histwin.vim, and the code for scratch.vim
+helped the author get started.
+
+==============================================================================
