@@ -93,6 +93,8 @@ target, with a slight pause after each change. It's mostly useless, but can be
 fun to watch and see where your editing lags -- that might be a good place to
 define a new mapping to speed up your editing.
 
+Pressing q while in the undo graph will close it.  You can also just press your
+toggle mapping key.
 
 ==============================================================================
 3. License                                                      *GundoLicense*
