@@ -77,6 +77,7 @@ function! s:GundoOpenBuffer()
         exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
         exe "new __Gundo__"
         call s:GundoResizeBuffers(winnr())
+        nnoremap <script> <silent> <buffer> q     :call <sid>GundoToggle()<CR>
         nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
         nnoremap <script> <silent> <buffer> j     :call <sid>GundoMove(1)<CR>
         nnoremap <script> <silent> <buffer> k     :call <sid>GundoMove(-1)<CR>
