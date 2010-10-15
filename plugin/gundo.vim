@@ -83,6 +83,7 @@ function! s:GundoOpenBuffer()
         nnoremap <script> <silent> <buffer> gg    gg:call <sid>GundoMove(1)<CR>
         nnoremap <script> <silent> <buffer> G     G:call <sid>GundoMove(-1)<CR>
         nnoremap <script> <silent> <buffer> P     :call <sid>GundoPlayTo()<CR>
+        nnoremap <script> <silent> <buffer> q     :call <sid>GundoToggle()<CR>
     else
         let existing_gundo_window = bufwinnr(existing_gundo_buffer)
 
