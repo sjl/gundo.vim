@@ -37,8 +37,6 @@ function! s:GundoMove(direction)
     " Bound the movement to the graph.
     if target_n <= 4
         call cursor(5, 0)
-    elseif target_n >= line('$')
-        call cursor(line('$') - 1, 0)
     else
         call cursor(target_n, 0)
     endif
@@ -81,7 +79,6 @@ function! s:GundoOpenBuffer()
         nnoremap <script> <silent> <buffer> j     :call <sid>GundoMove(1)<CR>
         nnoremap <script> <silent> <buffer> k     :call <sid>GundoMove(-1)<CR>
         nnoremap <script> <silent> <buffer> gg    gg:call <sid>GundoMove(1)<CR>
-        nnoremap <script> <silent> <buffer> G     G:call <sid>GundoMove(-1)<CR>
         nnoremap <script> <silent> <buffer> P     :call <sid>GundoPlayTo()<CR>
         nnoremap <script> <silent> <buffer> q     :call <sid>GundoToggle()<CR>
     else
@@ -140,6 +137,8 @@ function! s:GundoMarkPreviewBuffer()
     setlocal buflisted
     setlocal nomodifiable
     setlocal filetype=diff
+    setlocal nonumber
+    setlocal norelativenumber
     setlocal nowrap
     " TODO: Set foldmethod?
 endfunction
@@ -462,8 +461,9 @@ def ascii(buf, state, type, char, text, coldata):
 def generate(dag, edgefn, current):
     seen, state = [], [0, 0]
     buf = Buffer()
-    for node, parents in list(dag)[:-1]:
-        line = '[%s] %s' % (node.n, age(int(node.time)))
+    for node, parents in list(dag):
+        age_label = age(int(node.time)) if node.time else 'Original'
+        line = '[%s] %s' % (node.n, age_label)
         char = '@' if node.n == current else 'o'
         ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents))
     return buf.b
@@ -522,6 +522,18 @@ def _goto_window_for_buffer_name(bn):
     b = vim.eval('bufnr("%s")' % bn)
     _goto_window_for_buffer(b)
 
+def _undo_to(n):
+    n = int(n)
+    if n == 0:
+        try:
+            vim.command('silent! undo 1')
+        except vim.error:
+            return
+        vim.command('silent undo')
+    else:
+        vim.command('silent undo %d' % n)
+
+
 INLINE_HELP = '''\
 " Gundo for %s [%d]
 " j/k  - move between undo states
@@ -568,8 +580,9 @@ def make_nodes():
     root = Node(0, None, False, 0)
     nodes = []
     _make_nodes(entries, nodes, root)
+    nodes.append(root)
     nmap = dict((node.n, node) for node in nodes)
-    return (root, nodes, nmap)
+    return nodes, nmap
 
 def changenr(nodes):
     # TODO: This seems to sometimes be wrong right after you open a file...
@@ -586,7 +599,7 @@ ENDPYTHON
 function! s:GundoRender()
 python << ENDPYTHON
 def GundoRender():
-    root, nodes, nmap = make_nodes()
+    nodes, nmap = make_nodes()
 
     for node in nodes:
         node.children = [n for n in nodes if n.parent == node]
@@ -595,10 +608,10 @@ def GundoRender():
         for node in nodes:
             yield(node, [node.parent] if node.parent else [])
 
-    dag = sorted(nodes, key=lambda n: int(n.n), reverse=True) + [root]
+    dag = sorted(nodes, key=lambda n: int(n.n), reverse=True)
     current = changenr(nodes)
 
-    result = generate(walk_nodes(dag), asciiedges, current).splitlines()
+    result = generate(walk_nodes(dag), asciiedges, current).rstrip().splitlines()
     result = [' ' + l for l in result]
 
     target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
@@ -630,39 +643,77 @@ function! s:GundoRenderPreview(target)
 python << ENDPYTHON
 import difflib
 
-def GundoRenderPreview():
+def _fmt_time(t):
+    return time.strftime('%Y-%m-%d %I:%M:%S %p', time.localtime(float(t)))
+
+def _output_preview_text(lines):
+    _goto_window_for_buffer_name('__Gundo_Preview__')
+    vim.command('setlocal modifiable')
+    vim.current.buffer[:] = lines
+    vim.command('setlocal nomodifiable')
+
+def _generate_preview_diff(current, node_before, node_after):
     _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
 
-    root, nodes, nmap = make_nodes()
+    if not node_after.n:    # we're at the original file
+        before_lines = []
+
+        _undo_to(0)
+        after_lines = vim.current.buffer[:]
+
+        before_name = 'n/a'
+        before_time = ''
+        after_name = 'Original'
+        after_time = ''
+    elif not node_before.n: # we're at a pseudo-root state
+        _undo_to(0)
+        before_lines = vim.current.buffer[:]
+
+        _undo_to(node_after.n)
+        after_lines = vim.current.buffer[:]
+
+        before_name = 'Original'
+        before_time = ''
+        after_name = node_after.n
+        after_time = _fmt_time(node_after.time)
+    else:
+        _undo_to(node_before.n)
+        before_lines = vim.current.buffer[:]
+
+        _undo_to(node_after.n)
+        after_lines = vim.current.buffer[:]
+
+        before_name = node_before.n
+        before_time = _fmt_time(node_before.time)
+        after_name = node_after.n
+        after_time = _fmt_time(node_after.time)
+
+    _undo_to(current)
+
+    return list(difflib.unified_diff(before_lines, after_lines,
+                                     before_name, after_name,
+                                     before_time, after_time))
+
+def GundoRenderPreview():
+    target_n = vim.eval('a:target')
+
+    # Check that there's an undo state. There may not be if we're talking about
+    # a buffer with no changes yet.
+    if target_n == None:
+        _goto_window_for_buffer_name('__Gundo__')
+        return
+    else:
+        target_n = int(vim.eval('a:target'))
+
+    _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
+
+    nodes, nmap = make_nodes()
     current = changenr(nodes)
 
-    target_n = int(vim.eval('a:target'))
     node_after = nmap[target_n]
     node_before = node_after.parent
 
-    if not node_before.n:
-        before = []
-    else:
-        vim.command('silent undo %d' % node_before.n)
-        before = vim.current.buffer[:]
-
-    vim.command('silent undo %d' % node_after.n)
-    after = vim.current.buffer[:]
-
-    vim.command('silent undo %d' % current)
-
-    _goto_window_for_buffer_name('__Gundo_Preview__')
-    vim.command('setlocal modifiable')
-
-    def _fmt_time(t):
-        return time.strftime('%Y-%m-%d %I:%M:%S %p', time.localtime(float(t)))
-
-    diff = list(difflib.unified_diff(before, after, node_before.n, node_after.n,
-                                     _fmt_time(node_before.time) if node_before.n else 'n/a',
-                                     _fmt_time(node_after.time)))
-    vim.current.buffer[:] = diff
-
-    vim.command('setlocal nomodifiable')
+    _output_preview_text(_generate_preview_diff(current, node_before, node_after))
 
     _goto_window_for_buffer_name('__Gundo__')
 
@@ -677,7 +728,9 @@ function! s:GundoRevert()
     let target_num = matchstr(target_line, '\v[0-9]+')
     let back = bufwinnr(g:gundo_target_n)
     exe back . "wincmd w"
-    exe "undo " . target_num
+python << ENDPYTHON
+_undo_to(vim.eval('target_num'))
+ENDPYTHON
     GundoRender
     exe back . "wincmd w"
 endfunction
@@ -690,7 +743,7 @@ function! s:GundoPlayTo()
 
 python << ENDPYTHON
 def GundoPlayTo():
-    root, nodes, nmap = make_nodes()
+    nodes, nmap = make_nodes()
 
     start = nmap[changenr(nodes)]
     end = nmap[int(vim.eval('target_num'))]
@@ -720,7 +773,7 @@ def GundoPlayTo():
         return
 
     for node in branch:
-        vim.command('silent undo %d' % node.n)
+        _undo_to(node.n)
         vim.command('GundoRender')
         normal('zz')
         vim.command('%dwincmd w' % int(vim.eval('back')))
