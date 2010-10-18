@@ -140,6 +140,7 @@ function! s:GundoMarkPreviewBuffer()
     setlocal nonumber
     setlocal norelativenumber
     setlocal nowrap
+    setlocal foldlevel=20
     " TODO: Set foldmethod?
 endfunction
 
