@@ -1,9 +1,9 @@
 *gundo.txt*   Graph your undo tree so you can actually USE it.
 
 
-                            CURRENT STATUS: ALPHA
+                            CURRENT STATUS: BETA
 
-                        IT WILL PROBABLY EAT YOUR DATA
+                           IT MIGHT EAT YOUR DATA
 
       SERIOUSLY: IF YOU USE THIS PLUGIN, LOSE DATA AND COMPLAIN ABOUT IT
                    I AM GOING TO MAKE FUN OF YOU ON TWITTER
