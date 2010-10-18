@@ -1,10 +1,14 @@
-Gundo.vim is Vim plugin to visualize your Vim undo tree.
-
 <a href="http://flattr.com/thing/74149/Gundo-vim" target="_blank">
 <img src="http://api.flattr.com/button/button-compact-static-100x17.png" alt="Flattr this" title="Flattr this" border="0" /></a>
 
+Gundo.vim is Vim plugin to visualize your Vim undo tree.
+
 Current status: Beta. It might eat your data. Be careful.
 =========================================================
+
+Preview
+-------
+
 
 Screenshot:
 
