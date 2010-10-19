@@ -25,7 +25,7 @@ if has('python')
 python << ENDPYTHON
 import sys
 import vim
-if sys.version_info[:2] < (2, 5):
+if sys.version_info[:2] < (2, 4):
     vim.command('let s:has_supported_python = 0')
 ENDPYTHON
 
