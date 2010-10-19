@@ -16,6 +16,28 @@
 
 "let loaded_gundo = 1
 
+let s:warning_string = "Gundo requires that vim be compiled with Python 2.5+"
+" Check for Python support and required version
+if has('python')
+    let s:has_supported_python = 1
+python << ENDPYTHON
+import sys
+import vim
+if sys.version_info[:2] < (2, 5):
+    vim.command('let s:has_supported_python = 0')
+ENDPYTHON
+
+    " Python version is too old
+    if !s:has_supported_python
+        echo s:warning_string
+        finish                                                                                                          
+    endif
+else
+    " no Python support
+    echo s:warning_string
+    finish
+endif
+
 if !exists('g:gundo_width')
     let g:gundo_width = 45
 endif
