@@ -16,10 +16,12 @@
 
 "let loaded_gundo = 1
 
-let s:warning_string = "Gundo requires that vim be compiled with Python 2.5+"
+let s:warning_string = "Gundo requires that Vim be compiled with Python 2.4+"
+
 " Check for Python support and required version
 if has('python')
     let s:has_supported_python = 1
+
 python << ENDPYTHON
 import sys
 import vim
@@ -485,9 +487,15 @@ def generate(dag, edgefn, current):
     seen, state = [], [0, 0]
     buf = Buffer()
     for node, parents in list(dag):
-        age_label = age(int(node.time)) if node.time else 'Original'
+        if node.time:
+            age_label = age(int(node.time))
+        else:
+            age_label = 'Original'
         line = '[%s] %s' % (node.n, age_label)
-        char = '@' if node.n == current else 'o'
+        if node.n == current:
+            char = '@'
+        else:
+            char = 'o'
         ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents))
     return buf.b
 ENDPYTHON
@@ -589,7 +597,7 @@ def _make_nodes(alts, nodes, parent=None):
     p = parent
 
     for alt in alts:
-        curhead = True if 'curhead' in alt else False
+        curhead = 'curhead' in alt
         node = Node(n=alt['seq'], parent=p, time=alt['time'], curhead=curhead)
         nodes.append(node)
         if alt.get('alt'):
@@ -629,7 +637,10 @@ def GundoRender():
 
     def walk_nodes(nodes):
         for node in nodes:
-            yield(node, [node.parent] if node.parent else [])
+            if node.parent:
+                yield (node, [node.parent])
+            else:
+                yield (node, [])
 
     dag = sorted(nodes, key=lambda n: int(n.n), reverse=True)
     current = changenr(nodes)
@@ -775,8 +786,10 @@ def GundoPlayTo():
         rev = origin.n < dest.n
 
         nodes = []
-        current = origin if origin.n > dest.n else dest
-        final = dest if origin.n > dest.n else origin
+        if origin.n > dest.n:
+            current, final = origin, dest
+        else:
+            current, final = dest, origin
 
         while current.n >= final.n:
             if current.n == final.n:
