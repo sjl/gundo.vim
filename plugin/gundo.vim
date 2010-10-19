@@ -10,11 +10,11 @@
 
 
 "{{{ Init
-"if exists('loaded_gundo') || &cp
-    "finish
-"endif
+if exists('loaded_gundo') || &cp
+    finish
+endif
 
-"let loaded_gundo = 1
+let loaded_gundo = 1
 
 let s:warning_string = "Gundo requires that Vim be compiled with Python 2.4+"
 
