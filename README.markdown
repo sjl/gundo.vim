@@ -9,7 +9,6 @@ Current status: Beta. It might eat your data. Be careful.
 Preview
 -------
 
-
 Screenshot:
 
 <a href="http://www.flickr.com/photos/sjl7678/5093114605/" title="gundo by stevelosh, on Flickr"><img src="http://farm5.static.flickr.com/4113/5093114605_ebc46d6494.jpg" width="487" height="500" alt="gundo" /></a>
@@ -37,6 +36,8 @@ Add a mapping to your `~/.vimrc` (change the key to suit your taste):
 
 Usage
 -----
+
+Run `:help gundo` for the full docs. Here's the in-a-nutshell version.
 
 When you're editing a file you can bring up the undo graph for that file with
 `<F5>` (or whatever key you mapped it to).
