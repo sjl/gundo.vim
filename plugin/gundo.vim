@@ -158,7 +158,7 @@ function! s:GundoMarkPreviewBuffer()
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
-    setlocal buflisted
+    setlocal nobuflisted
     setlocal nomodifiable
     setlocal filetype=diff
     setlocal nonumber
@@ -172,7 +172,7 @@ function! s:GundoMarkBuffer()
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
-    setlocal buflisted
+    setlocal nobuflisted
     setlocal nomodifiable
     setlocal filetype=gundo
     setlocal nolist
