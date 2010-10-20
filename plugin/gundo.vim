@@ -87,7 +87,7 @@ endfunction"}}}
 
 "}}}
 
-"{{{ Gundo buffer mappings
+"{{{ Gundo buffer settings
 
 function! s:GundoMapGraph()"{{{
     nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
@@ -95,93 +95,15 @@ function! s:GundoMapGraph()"{{{
     nnoremap <script> <silent> <buffer> k     :call <sid>GundoMove(-1)<CR>
     nnoremap <script> <silent> <buffer> gg    gg:call <sid>GundoMove(1)<CR>
     nnoremap <script> <silent> <buffer> P     :call <sid>GundoPlayTo()<CR>
-    nnoremap <script> <silent> <buffer> q     :call <sid>GundoToggle()<CR>
-    cabbrev  <script> <silent> <buffer> q     call <sid>GundoToggle()
-    cabbrev  <script> <silent> <buffer> quit  call <sid>GundoToggle()
+    nnoremap <script> <silent> <buffer> q     :call <sid>GundoClose()<CR>
+    cabbrev  <script> <silent> <buffer> q     call <sid>GundoClose()
+    cabbrev  <script> <silent> <buffer> quit  call <sid>GundoClose()
 endfunction"}}}
 
 function! s:GundoMapPreview()"{{{
-    return
-endfunction"}}}
-
-"}}}
-
-"{{{ Buffer/window management
-
-function! s:GundoResizeBuffers(backto)"{{{
-    exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
-    exe "vertical resize " . g:gundo_width
-
-    exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
-    exe "resize " . 15
-
-    exe a:backto . "wincmd w"
-endfunction"}}}
-
-function! s:GundoOpenBuffer()"{{{
-    let existing_gundo_buffer = bufnr("__Gundo__")
-
-    if existing_gundo_buffer == -1
-        exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
-        exe "new __Gundo__"
-        call s:GundoResizeBuffers(winnr())
-        call s:GundoMapGraph()
-    else
-        let existing_gundo_window = bufwinnr(existing_gundo_buffer)
-
-        if existing_gundo_window != -1
-            if winnr() != existing_gundo_window
-                exe existing_gundo_window . "wincmd w"
-            endif
-        else
-            exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
-            exe "split +buffer" . existing_gundo_buffer
-            call s:GundoResizeBuffers(winnr())
-        endif
-    endif
-endfunction"}}}
-
-function! s:GundoClose(return_to)"{{{
-        if bufwinnr(bufnr('__Gundo__')) != -1
-            exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
-            quit
-        endif
-
-        if bufwinnr(bufnr('__Gundo_Preview__')) != -1
-            exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
-            quit
-        endif
-
-        exe bufwinnr(a:return_to) . "wincmd w"
-endfunction"}}}
-
-function! s:GundoToggle()"{{{
-    if expand('%') == "__Gundo__"
-        call s:GundoClose(g:gundo_target_n)
-    else
-        if expand('%') != "__Gundo_Preview__"
-            " Record the previous buffer number.
-            "
-            " This sucks because we're not getting the window number, and there
-            " may be more than one window viewing the same buffer, so we might
-            " go back to the wrong one.
-            "
-            " Unfortunately window numbers change as we open more windows.
-            "
-            " TODO: Figure out how to fix this.
-            let g:gundo_target_n = bufnr('')
-            let g:gundo_target_f = @%
-        endif
-
-        call s:GundoOpenPreview()
-        exe bufwinnr(g:gundo_target_n) . "wincmd w"
-        GundoRender
-
-        " TODO: Move these lines into RenderPreview
-        let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
-        let target_num = matchstr(target_line, '\v[0-9]+')
-        call s:GundoRenderPreview(target_num)
-    endif
+    nnoremap <script> <silent> <buffer> q     :call <sid>GundoClose()<CR>
+    cabbrev  <script> <silent> <buffer> q     call <sid>GundoClose()
+    cabbrev  <script> <silent> <buffer> quit  call <sid>GundoClose()
 endfunction"}}}
 
 function! s:GundoMarkPreviewBuffer()"{{{
@@ -224,6 +146,86 @@ function! s:GundoSyntax()"{{{
     hi def link GundoHelp Comment
     hi def link GundoNumberField Comment
     hi def link GundoNumber Identifier
+endfunction"}}}
+
+"}}}
+
+"{{{ Buffer/window management
+
+function! s:GundoResizeBuffers(backto)"{{{
+    exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
+    exe "vertical resize " . g:gundo_width
+
+    exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+    exe "resize " . 15
+
+    exe a:backto . "wincmd w"
+endfunction"}}}
+
+function! s:GundoOpenBuffer()"{{{
+    let existing_gundo_buffer = bufnr("__Gundo__")
+
+    if existing_gundo_buffer == -1
+        exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+        exe "new __Gundo__"
+        call s:GundoResizeBuffers(winnr())
+        call s:GundoMapGraph()
+    else
+        let existing_gundo_window = bufwinnr(existing_gundo_buffer)
+
+        if existing_gundo_window != -1
+            if winnr() != existing_gundo_window
+                exe existing_gundo_window . "wincmd w"
+            endif
+        else
+            exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+            exe "split +buffer" . existing_gundo_buffer
+            call s:GundoResizeBuffers(winnr())
+        endif
+    endif
+endfunction"}}}
+
+function! s:GundoClose()"{{{
+        if bufwinnr(bufnr('__Gundo__')) != -1
+            exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
+            quit
+        endif
+
+        if bufwinnr(bufnr('__Gundo_Preview__')) != -1
+            exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+            quit
+        endif
+
+        exe bufwinnr(g:gundo_target_n) . "wincmd w"
+endfunction"}}}
+
+function! s:GundoToggle()"{{{
+    if expand('%') == "__Gundo__"
+        call s:GundoClose()
+    else
+        if expand('%') != "__Gundo_Preview__"
+            " Record the previous buffer number.
+            "
+            " This sucks because we're not getting the window number, and there
+            " may be more than one window viewing the same buffer, so we might
+            " go back to the wrong one.
+            "
+            " Unfortunately window numbers change as we open more windows.
+            "
+            " TODO: Figure out how to fix this.
+            let g:gundo_target_n = bufnr('')
+            let g:gundo_target_f = @%
+        endif
+
+        call s:GundoOpenPreview()
+        exe bufwinnr(g:gundo_target_n) . "wincmd w"
+        GundoRender
+
+        " TODO: Move these lines into RenderPreview
+        let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
+        let target_num = matchstr(target_line, '\v[0-9]+')
+        call s:GundoRenderPreview(target_num)
+    endif
 endfunction"}}}
 
 function! s:GundoOpenPreview()"{{{
