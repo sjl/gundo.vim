@@ -770,6 +770,7 @@ function! s:GundoPlayTo()
     let target_num = matchstr(target_line, '\v[0-9]+')
     let back = bufwinnr(g:gundo_target_n)
     exe back . "wincmd w"
+    normal zR
 
 python << ENDPYTHON
 def GundoPlayTo():
