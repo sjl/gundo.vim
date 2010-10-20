@@ -556,11 +556,7 @@ def _goto_window_for_buffer_name(bn):
 def _undo_to(n):
     n = int(n)
     if n == 0:
-        try:
-            vim.command('silent! undo 1')
-        except vim.error:
-            return
-        vim.command('silent undo')
+        vim.command('silent earlier 999999999d')
     else:
         vim.command('silent undo %d' % n)
 
