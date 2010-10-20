@@ -52,7 +52,7 @@ if !exists('g:gundo_width')
 endif
 "}}}
 
-"{{{ Movement Mappings
+"{{{ Movement
 function! s:GundoMove(direction)
     let start_line = getline('.')
 
