@@ -45,9 +45,11 @@ endif"}}}
 if !exists('g:gundo_width')"{{{
     let g:gundo_width = 45
 endif"}}}
-
 if !exists('g:gundo_preview_height')"{{{
     let g:gundo_preview_height = 15
+endif"}}}
+if !exists('g:gundo_right')"{{{
+    let g:gundo_right = 0
 endif"}}}
 
 "}}}
@@ -194,7 +196,12 @@ function! s:GundoOpenPreview()"{{{
 
     if existing_preview_buffer == -1
         exe "vnew __Gundo_Preview__"
-        wincmd H
+
+        if g:gundo_right
+            wincmd L
+        else
+            wincmd H
+        endif
     else
         let existing_preview_window = bufwinnr(existing_preview_buffer)
 
@@ -204,7 +211,12 @@ function! s:GundoOpenPreview()"{{{
             endif
         else
             exe "vsplit +buffer" . existing_preview_buffer
-            wincmd H
+
+            if g:gundo_right
+                wincmd L
+            else
+                wincmd H
+            endif
         endif
     endif
 endfunction"}}}
