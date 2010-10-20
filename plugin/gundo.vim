@@ -46,6 +46,10 @@ if !exists('g:gundo_width')"{{{
     let g:gundo_width = 45
 endif"}}}
 
+if !exists('g:gundo_preview_height')"{{{
+    let g:gundo_preview_height = 15
+endif"}}}
+
 "}}}
 
 "{{{ Movement
@@ -158,7 +162,7 @@ function! s:GundoResizeBuffers(backto)"{{{
     exe "vertical resize " . g:gundo_width
 
     exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
-    exe "resize " . 15
+    exe "resize " . g:gundo_preview_height
 
     exe a:backto . "wincmd w"
 endfunction"}}}
