@@ -10,7 +10,7 @@
 
 
 "{{{ Init
-if exists('loaded_gundo') || &cp
+if !exists('g:gundo_debug') && (exists('loaded_gundo') || &cp)
     finish
 endif
 
