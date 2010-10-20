@@ -20,8 +20,8 @@ Requirements
 ------------
 
 * Vim 7.3+
-* Python support for Vim.
-* Python 2.4+.
+* Python support for Vim
+* Python 2.4+
 
 Installation
 ------------
