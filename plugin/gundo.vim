@@ -16,7 +16,14 @@ endif
 
 let loaded_gundo = 1
 
-let s:warning_string = "Gundo requires that Vim be compiled with Python 2.4+"
+let s:vim_warning_string = "Gundo requires Vim 7.3+"
+let s:python_warning_string = "Gundo requires that Vim be compiled with Python 2.4+"
+
+" Check for Vim required version
+if v:version < '703'
+    echo s:vim_warning_string
+    finish
+endif
 
 " Check for Python support and required version
 if has('python')
@@ -31,8 +38,8 @@ ENDPYTHON
 
     " Python version is too old
     if !s:has_supported_python
-        echo s:warning_string
-        finish                                                                                                          
+        echo s:python_warning_string
+        finish
     endif
 else
     " no Python support
