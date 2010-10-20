@@ -89,13 +89,31 @@ function! s:GundoMove(direction)
 endfunction
 "}}}
 
+"{{{ Gundo Buffer Mappings
+function! s:GundoMapGraph()
+    nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
+    nnoremap <script> <silent> <buffer> j     :call <sid>GundoMove(1)<CR>
+    nnoremap <script> <silent> <buffer> k     :call <sid>GundoMove(-1)<CR>
+    nnoremap <script> <silent> <buffer> gg    gg:call <sid>GundoMove(1)<CR>
+    nnoremap <script> <silent> <buffer> P     :call <sid>GundoPlayTo()<CR>
+    nnoremap <script> <silent> <buffer> q     :call <sid>GundoToggle()<CR>
+    cabbrev  <script> <silent> <buffer> q     call <sid>GundoToggle()
+    cabbrev  <script> <silent> <buffer> quit  call <sid>GundoToggle()
+endfunction
+
+function! s:GundoMapPreview()
+    return
+endfunction
+"}}}
+
 "{{{ Buffer/Window Management
 function! s:GundoResizeBuffers(backto)
-    " This sucks and doesn't work. TODO: Fix it.
     exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
     exe "vertical resize " . g:gundo_width
+
     exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
     exe "resize " . 15
+
     exe a:backto . "wincmd w"
 endfunction
 
@@ -106,14 +124,7 @@ function! s:GundoOpenBuffer()
         exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
         exe "new __Gundo__"
         call s:GundoResizeBuffers(winnr())
-        nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
-        nnoremap <script> <silent> <buffer> j     :call <sid>GundoMove(1)<CR>
-        nnoremap <script> <silent> <buffer> k     :call <sid>GundoMove(-1)<CR>
-        nnoremap <script> <silent> <buffer> gg    gg:call <sid>GundoMove(1)<CR>
-        nnoremap <script> <silent> <buffer> P     :call <sid>GundoPlayTo()<CR>
-        nnoremap <script> <silent> <buffer> q     :call <sid>GundoToggle()<CR>
-        cabbrev  <script> <silent> <buffer> q     call <sid>GundoToggle()
-        cabbrev  <script> <silent> <buffer> quit  call <sid>GundoToggle()
+        call s:GundoMapGraph()
     else
         let existing_gundo_window = bufwinnr(existing_gundo_buffer)
 
@@ -211,6 +222,7 @@ function! s:GundoOpenPreview()
     if existing_preview_buffer == -1
         exe "vnew __Gundo_Preview__"
         wincmd H
+        call s:GundoMapPreview()
     else
         let existing_preview_window = bufwinnr(existing_preview_buffer)
 
