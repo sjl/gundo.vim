@@ -106,21 +106,7 @@ function! s:GundoMapPreview()"{{{
     cabbrev  <script> <silent> <buffer> quit  call <sid>GundoClose()
 endfunction"}}}
 
-function! s:GundoMarkPreviewBuffer()"{{{
-    setlocal buftype=nofile
-    setlocal bufhidden=hide
-    setlocal noswapfile
-    setlocal nobuflisted
-    setlocal nomodifiable
-    setlocal filetype=diff
-    setlocal nonumber
-    setlocal norelativenumber
-    setlocal nowrap
-    setlocal foldlevel=20
-    " TODO: Set foldmethod?
-endfunction"}}}
-
-function! s:GundoMarkBuffer()"{{{
+function! s:GundoSettingsGraph()"{{{
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
@@ -131,10 +117,25 @@ function! s:GundoMarkBuffer()"{{{
     setlocal nonumber
     setlocal norelativenumber
     setlocal nowrap
-    call s:GundoSyntax()
+    call s:GundoSyntaxGraph()
+    call s:GundoMapGraph()
 endfunction"}}}
 
-function! s:GundoSyntax()"{{{
+function! s:GundoSettingsPreview()"{{{
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal nobuflisted
+    setlocal nomodifiable
+    setlocal filetype=diff
+    setlocal nonumber
+    setlocal norelativenumber
+    setlocal nowrap
+    setlocal foldlevel=20
+    call s:GundoMapPreview()
+endfunction"}}}
+
+function! s:GundoSyntaxGraph()"{{{
     let b:current_syntax = 'gundo'
 
     syn match GundoCurrentLocation '@'
@@ -162,14 +163,13 @@ function! s:GundoResizeBuffers(backto)"{{{
     exe a:backto . "wincmd w"
 endfunction"}}}
 
-function! s:GundoOpenBuffer()"{{{
+function! s:GundoOpenGraph()"{{{
     let existing_gundo_buffer = bufnr("__Gundo__")
 
     if existing_gundo_buffer == -1
         exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
         exe "new __Gundo__"
         call s:GundoResizeBuffers(winnr())
-        call s:GundoMapGraph()
     else
         let existing_gundo_window = bufwinnr(existing_gundo_buffer)
 
@@ -181,6 +181,26 @@ function! s:GundoOpenBuffer()"{{{
             exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
             exe "split +buffer" . existing_gundo_buffer
             call s:GundoResizeBuffers(winnr())
+        endif
+    endif
+endfunction"}}}
+
+function! s:GundoOpenPreview()"{{{
+    let existing_preview_buffer = bufnr("__Gundo_Preview__")
+
+    if existing_preview_buffer == -1
+        exe "vnew __Gundo_Preview__"
+        wincmd H
+    else
+        let existing_preview_window = bufwinnr(existing_preview_buffer)
+
+        if existing_preview_window != -1
+            if winnr() != existing_preview_window
+                exe existing_preview_window . "wincmd w"
+            endif
+        else
+            exe "vsplit +buffer" . existing_preview_buffer
+            wincmd H
         endif
     endif
 endfunction"}}}
@@ -228,27 +248,6 @@ function! s:GundoToggle()"{{{
     endif
 endfunction"}}}
 
-function! s:GundoOpenPreview()"{{{
-    let existing_preview_buffer = bufnr("__Gundo_Preview__")
-
-    if existing_preview_buffer == -1
-        exe "vnew __Gundo_Preview__"
-        wincmd H
-        call s:GundoMapPreview()
-    else
-        let existing_preview_window = bufwinnr(existing_preview_buffer)
-
-        if existing_preview_window != -1
-            if winnr() != existing_preview_window
-                exe existing_preview_window . "wincmd w"
-            endif
-        else
-            exe "vsplit +buffer" . existing_preview_buffer
-            wincmd H
-        endif
-    endif
-endfunction"}}}
- 
 "}}}
 
 "{{{ Mercurial's graphlog code
@@ -656,11 +655,11 @@ def changenr(nodes):
 ENDPYTHON
 "}}}
 
-"{{{ Graph rendering
+"{{{ Rendering
 
-function! s:GundoRender()"{{{
+function! s:GundoRenderGraph()"{{{
 python << ENDPYTHON
-def GundoRender():
+def GundoRenderGraph():
     nodes, nmap = make_nodes()
 
     for node in nodes:
@@ -682,7 +681,7 @@ def GundoRender():
     target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
     header = (INLINE_HELP % target).splitlines()
 
-    vim.command('GundoOpenBuffer')
+    vim.command('GundoOpenGraph')
     vim.command('setlocal modifiable')
     vim.current.buffer[:] = (header + result)
     vim.command('setlocal nomodifiable')
@@ -698,13 +697,9 @@ def GundoRender():
         i += 1
     vim.command('%d' % (i+len(header)-1))
 
-GundoRender()
+GundoRenderGraph()
 ENDPYTHON
 endfunction"}}}
-
-"}}}
-
-"{{{ Preview rendering
 
 function! s:GundoRenderPreview(target)"{{{
 python << ENDPYTHON
@@ -800,7 +795,7 @@ function! s:GundoRevert()"{{{
 python << ENDPYTHON
 _undo_to(vim.eval('target_num'))
 ENDPYTHON
-    GundoRender
+    GundoRenderGraph
     exe back . "wincmd w"
 endfunction"}}}
 
@@ -846,7 +841,7 @@ def GundoPlayTo():
 
     for node in branch:
         _undo_to(node.n)
-        vim.command('GundoRender')
+        vim.command('GundoRenderGraph')
         normal('zz')
         vim.command('%dwincmd w' % int(vim.eval('back')))
         vim.command('redraw')
@@ -859,9 +854,9 @@ endfunction"}}}
 "}}}
 
 "{{{ Misc
-command! -nargs=0 GundoOpenBuffer call s:GundoOpenBuffer()
+command! -nargs=0 GundoOpenGraph call s:GundoOpenGraph()
 command! -nargs=0 GundoToggle call s:GundoToggle()
-command! -nargs=0 GundoRender call s:GundoRender()
-autocmd BufNewFile __Gundo__ call s:GundoMarkBuffer()
-autocmd BufNewFile __Gundo_Preview__ call s:GundoMarkPreviewBuffer()
+command! -nargs=0 GundoRenderGraph call s:GundoRenderGraph()
+autocmd BufNewFile __Gundo__ call s:GundoSettingsGraph()
+autocmd BufNewFile __Gundo_Preview__ call s:GundoSettingsPreview()
 "}}}
