@@ -10,23 +10,18 @@
 
 
 "{{{ Init
-if !exists('g:gundo_debug') && (exists('loaded_gundo') || &cp)
+
+if !exists('g:gundo_debug') && (exists('loaded_gundo') || &cp)"{{{
     finish
 endif
+let loaded_gundo = 1"}}}
 
-let loaded_gundo = 1
-
-let s:vim_warning_string = "Gundo requires Vim 7.3+"
-let s:python_warning_string = "Gundo requires that Vim be compiled with Python 2.4+"
-
-" Check for Vim required version
-if v:version < '703'
-    echo s:vim_warning_string
+if v:version < '703'"{{{
+    echo  "Gundo requires Vim 7.3+"
     finish
-endif
+endif"}}}
 
-" Check for Python support and required version
-if has('python')
+if has('python')"{{{
     let s:has_supported_python = 1
 
 python << ENDPYTHON
@@ -38,22 +33,24 @@ ENDPYTHON
 
     " Python version is too old
     if !s:has_supported_python
-        echo s:python_warning_string
+        echo  "Gundo requires that Vim be compiled with Python 2.4+"
         finish
     endif
 else
     " no Python support
-    echo s:warning_string
+    echo  "Gundo requires that Vim be compiled with Python 2.4+"
     finish
-endif
+endif"}}}
 
-if !exists('g:gundo_width')
+if !exists('g:gundo_width')"{{{
     let g:gundo_width = 45
-endif
+endif"}}}
+
 "}}}
 
 "{{{ Movement
-function! s:GundoMove(direction)
+
+function! s:GundoMove(direction)"{{{
     let start_line = getline('.')
 
     " If we're in between two nodes we move by one to get back on track.
@@ -86,11 +83,13 @@ function! s:GundoMove(direction)
     let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
     let target_num = matchstr(target_line, '\v[0-9]+')
     call s:GundoRenderPreview(target_num)
-endfunction
+endfunction"}}}
+
 "}}}
 
 "{{{ Gundo buffer mappings
-function! s:GundoMapGraph()
+
+function! s:GundoMapGraph()"{{{
     nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
     nnoremap <script> <silent> <buffer> j     :call <sid>GundoMove(1)<CR>
     nnoremap <script> <silent> <buffer> k     :call <sid>GundoMove(-1)<CR>
@@ -99,15 +98,17 @@ function! s:GundoMapGraph()
     nnoremap <script> <silent> <buffer> q     :call <sid>GundoToggle()<CR>
     cabbrev  <script> <silent> <buffer> q     call <sid>GundoToggle()
     cabbrev  <script> <silent> <buffer> quit  call <sid>GundoToggle()
-endfunction
+endfunction"}}}
 
-function! s:GundoMapPreview()
+function! s:GundoMapPreview()"{{{
     return
-endfunction
+endfunction"}}}
+
 "}}}
 
 "{{{ Buffer/window management
-function! s:GundoResizeBuffers(backto)
+
+function! s:GundoResizeBuffers(backto)"{{{
     exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
     exe "vertical resize " . g:gundo_width
 
@@ -115,9 +116,9 @@ function! s:GundoResizeBuffers(backto)
     exe "resize " . 15
 
     exe a:backto . "wincmd w"
-endfunction
+endfunction"}}}
 
-function! s:GundoOpenBuffer()
+function! s:GundoOpenBuffer()"{{{
     let existing_gundo_buffer = bufnr("__Gundo__")
 
     if existing_gundo_buffer == -1
@@ -138,16 +139,25 @@ function! s:GundoOpenBuffer()
             call s:GundoResizeBuffers(winnr())
         endif
     endif
-endfunction
+endfunction"}}}
 
-function! s:GundoToggle()
-    if expand('%') == "__Gundo__"
-        quit
+function! s:GundoClose(return_to)"{{{
+        if bufwinnr(bufnr('__Gundo__')) != -1
+            exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
+            quit
+        endif
+
         if bufwinnr(bufnr('__Gundo_Preview__')) != -1
             exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
             quit
         endif
-        exe bufwinnr(g:gundo_target_n) . "wincmd w"
+
+        exe bufwinnr(a:return_to) . "wincmd w"
+endfunction"}}}
+
+function! s:GundoToggle()"{{{
+    if expand('%') == "__Gundo__"
+        call s:GundoClose(g:gundo_target_n)
     else
         if expand('%') != "__Gundo_Preview__"
             " Record the previous buffer number.
@@ -172,9 +182,9 @@ function! s:GundoToggle()
         let target_num = matchstr(target_line, '\v[0-9]+')
         call s:GundoRenderPreview(target_num)
     endif
-endfunction
+endfunction"}}}
 
-function! s:GundoMarkPreviewBuffer()
+function! s:GundoMarkPreviewBuffer()"{{{
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
@@ -186,9 +196,9 @@ function! s:GundoMarkPreviewBuffer()
     setlocal nowrap
     setlocal foldlevel=20
     " TODO: Set foldmethod?
-endfunction
+endfunction"}}}
 
-function! s:GundoMarkBuffer()
+function! s:GundoMarkBuffer()"{{{
     setlocal buftype=nofile
     setlocal bufhidden=hide
     setlocal noswapfile
@@ -200,9 +210,9 @@ function! s:GundoMarkBuffer()
     setlocal norelativenumber
     setlocal nowrap
     call s:GundoSyntax()
-endfunction
+endfunction"}}}
 
-function! s:GundoSyntax()
+function! s:GundoSyntax()"{{{
     let b:current_syntax = 'gundo'
 
     syn match GundoCurrentLocation '@'
@@ -214,9 +224,9 @@ function! s:GundoSyntax()
     hi def link GundoHelp Comment
     hi def link GundoNumberField Comment
     hi def link GundoNumber Identifier
-endfunction
+endfunction"}}}
 
-function! s:GundoOpenPreview()
+function! s:GundoOpenPreview()"{{{
     let existing_preview_buffer = bufnr("__Gundo_Preview__")
 
     if existing_preview_buffer == -1
@@ -235,7 +245,8 @@ function! s:GundoOpenPreview()
             wincmd H
         endif
     endif
-endfunction
+endfunction"}}}
+ 
 "}}}
 
 "{{{ Mercurial's graphlog code
@@ -644,7 +655,8 @@ ENDPYTHON
 "}}}
 
 "{{{ Graph rendering
-function! s:GundoRender()
+
+function! s:GundoRender()"{{{
 python << ENDPYTHON
 def GundoRender():
     nodes, nmap = make_nodes()
@@ -686,11 +698,13 @@ def GundoRender():
 
 GundoRender()
 ENDPYTHON
-endfunction
+endfunction"}}}
+
 "}}}
 
 "{{{ Preview rendering
-function! s:GundoRenderPreview(target)
+
+function! s:GundoRenderPreview(target)"{{{
 python << ENDPYTHON
 import difflib
 
@@ -770,11 +784,13 @@ def GundoRenderPreview():
 
 GundoRenderPreview()
 ENDPYTHON
-endfunction
+endfunction"}}}
+
 "}}}
 
 "{{{ Undo/redo commands
-function! s:GundoRevert()
+
+function! s:GundoRevert()"{{{
     let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
     let target_num = matchstr(target_line, '\v[0-9]+')
     let back = bufwinnr(g:gundo_target_n)
@@ -784,9 +800,9 @@ _undo_to(vim.eval('target_num'))
 ENDPYTHON
     GundoRender
     exe back . "wincmd w"
-endfunction
+endfunction"}}}
 
-function! s:GundoPlayTo()
+function! s:GundoPlayTo()"{{{
     let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
     let target_num = matchstr(target_line, '\v[0-9]+')
     let back = bufwinnr(g:gundo_target_n)
@@ -836,7 +852,8 @@ def GundoPlayTo():
 
 GundoPlayTo()
 ENDPYTHON
-endfunction
+endfunction"}}}
+
 "}}}
 
 "{{{ Misc
