@@ -89,7 +89,7 @@ function! s:GundoMove(direction)
 endfunction
 "}}}
 
-"{{{ Gundo Buffer Mappings
+"{{{ Gundo buffer mappings
 function! s:GundoMapGraph()
     nnoremap <script> <silent> <buffer> <CR>  :call <sid>GundoRevert()<CR>
     nnoremap <script> <silent> <buffer> j     :call <sid>GundoMove(1)<CR>
@@ -106,7 +106,7 @@ function! s:GundoMapPreview()
 endfunction
 "}}}
 
-"{{{ Buffer/Window Management
+"{{{ Buffer/window management
 function! s:GundoResizeBuffers(backto)
     exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
     exe "vertical resize " . g:gundo_width
@@ -238,7 +238,7 @@ function! s:GundoOpenPreview()
 endfunction
 "}}}
 
-"{{{ Mercurial's Graphlog Code
+"{{{ Mercurial's graphlog code
 python << ENDPYTHON
 def asciiedges(seen, rev, parents):
     """adds edge info to changelog DAG walk suitable for ascii()"""
@@ -689,7 +689,7 @@ ENDPYTHON
 endfunction
 "}}}
 
-"{{{ Preview Rendering
+"{{{ Preview rendering
 function! s:GundoRenderPreview(target)
 python << ENDPYTHON
 import difflib
@@ -773,7 +773,7 @@ ENDPYTHON
 endfunction
 "}}}
 
-"{{{ Undo/Redo Commands
+"{{{ Undo/redo commands
 function! s:GundoRevert()
     let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
     let target_num = matchstr(target_line, '\v[0-9]+')
