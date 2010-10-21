@@ -99,8 +99,8 @@ bottom of the graph (the oldest state) with G.
 As you move between undo states the preview pane will show you a unified diff
 of the change that state made.
 
-Pressing enter on a state will revert the contents of the file to match that
-state.
+Pressing enter on a state (or double clicking on it) will revert the contents
+of the file to match that state.
 
 Pressing P while on a state will initiate "play to" mode targeted at that
 state. This will replay all the changes between your current state and the
