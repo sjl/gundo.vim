@@ -459,6 +459,12 @@ def changenr(nodes):
 ENDPYTHON
 "}}}
 
+"{{{ Gundo utility functions
+function! s:GundoGetTargetState()
+    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
+    return matchstr(target_line, '\v[0-9]+')
+endfunction"}}}
+
 "{{{ Gundo buffer settings
 
 function! s:GundoMapGraph()"{{{
@@ -525,7 +531,7 @@ endfunction"}}}
 
 "}}}
 
-"{{{ Buffer/window management
+"{{{ Gundo buffer/window management
 
 function! s:GundoResizeBuffers(backto)"{{{
     exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
@@ -626,15 +632,14 @@ function! s:GundoToggle()"{{{
         GundoRender
 
         " TODO: Move these lines into RenderPreview
-        let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
-        let target_num = matchstr(target_line, '\v[0-9]+')
+        let target_num = s:GundoGetTargetState()
         call s:GundoRenderPreview(target_num)
     endif
 endfunction"}}}
 
 "}}}
 
-"{{{ Mouse handling
+"{{{ Gundo mouse handling
 
 function! s:GundoMouseDoubleClick()"{{{
     let start_line = getline('.')
@@ -648,7 +653,7 @@ endfunction"}}}
  
 "}}}
 
-"{{{ Movement
+"{{{ Gundo movement
 
 function! s:GundoMove(direction)"{{{
     let start_line = getline('.')
@@ -680,14 +685,13 @@ function! s:GundoMove(direction)"{{{
         call cursor(0, idx2 + 1)
     endif
 
-    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
-    let target_num = matchstr(target_line, '\v[0-9]+')
+    let target_num = s:GundoGetTargetState()
     call s:GundoRenderPreview(target_num)
 endfunction"}}}
 
 "}}}
 
-"{{{ Rendering
+"{{{ Gundo rendering
 
 function! s:GundoRenderGraph()"{{{
 python << ENDPYTHON
@@ -817,11 +821,10 @@ endfunction"}}}
 
 "}}}
 
-"{{{ Undo/redo commands
+"{{{ Gundo undo/redo
 
 function! s:GundoRevert()"{{{
-    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
-    let target_num = matchstr(target_line, '\v[0-9]+')
+    let target_num = s:GundoGetTargetState()
     let back = bufwinnr(g:gundo_target_n)
     exe back . "wincmd w"
 python << ENDPYTHON
@@ -832,8 +835,7 @@ ENDPYTHON
 endfunction"}}}
 
 function! s:GundoPlayTo()"{{{
-    let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
-    let target_num = matchstr(target_line, '\v[0-9]+')
+    let target_num = s:GundoGetTargetState()
     let back = bufwinnr(g:gundo_target_n)
     exe back . "wincmd w"
     normal zR
