@@ -505,6 +505,7 @@ function! s:GundoSettingsPreview()"{{{
     setlocal norelativenumber
     setlocal nowrap
     setlocal foldlevel=20
+    setlocal foldmethod=diff
     call s:GundoMapPreview()
 endfunction"}}}
 
