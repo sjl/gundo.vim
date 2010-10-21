@@ -12,7 +12,21 @@
 Making's Vim's undo tree usable by humans.
 
 ==============================================================================
-1. Intro                                                *Gundo-plugin* *Gundo*
+CONTENTS                                                      *Gundo-contents*
+
+    1. Intro .......................... |GundoIntro|
+    2. Usage .......................... |GundoUsage|
+    3. Configuration .................. |GundoConfig|
+        3.1 gundo_width ............... |gundo_width|
+        3.2 gundo_preview_height ...... |gundo_preview_height|
+        3.2 gundo_right ............... |gundo_right|
+    4. License ........................ |GundoLicense|
+    5. Bugs ........................... |GundoBugs|
+    6. Contributing ................... |GundoContributing|
+    7. Credits ........................ |GundoCredits|
+
+==============================================================================
+1. Intro                                                          *GundoIntro*
 
 You know that Vim lets you undo changes like any text editor. What you might
 not know is that it doesn't just keep a list of your changes -- it keeps
@@ -98,18 +112,50 @@ Pressing q while in the undo graph will close it.  You can also just press your
 toggle mapping key.
 
 ==============================================================================
-3. License                                                      *GundoLicense*
+3. Configuration                                                 *GundoConfig*
+
+You can tweak the behavior of Gundo by setting a few variables in your :vimrc
+file. For example: >
+
+    let g:gundo_width = 60
+    let g:gundo_preview_height = 40
+    let g:gundo_right = 1
+
+------------------------------------------------------------------------------
+3.1 g:gundo_width                                                *gundo_width*
+
+Set the horizontal width of the Gundo graph (and preview).
+
+Default: 45
+
+------------------------------------------------------------------------------
+3.2 g:gundo_preview_height                              *gundo_preview_height*
+
+Set the vertical height of the Gundo preview.
+
+Default: 15
+
+------------------------------------------------------------------------------
+3.3 g:gundo_right                                                *gundo_right*
+
+Set this to 1 to make the Gundo graph (and preview) open on the right side
+instead of the left.
+
+Default: 0 (off, open on the left side)
+
+==============================================================================
+4. License                                                      *GundoLicense*
 
 GPLv2+. Look it up.
 
 ==============================================================================
-4. Bugs                                                            *GundoBugs*
+5. Bugs                                                            *GundoBugs*
 
 If you find a bug please post it on the issue tracker:
 http://bitbucket.org/sjl/gundo.vim/issues?status=new&status=open
 
 ==============================================================================
-5. Contributing                                            *GundoContributing*
+6. Contributing                                            *GundoContributing*
 
 Think you can make this plugin better? Awesome. Fork it on BitBucket or GitHub
 and send a pull request.
@@ -118,7 +164,7 @@ BitBucket: http://bitbucket.org/sjl/gundo.vim/
 GitHub: http://github.com/sjl/gundo.vim/
 
 ==============================================================================
-6. Credits                                                      *GundoCredits*
+7. Credits                                                      *GundoCredits*
 
 The graphing code was all taken from Mercurial, hence the GPLv2+ license.
 
