@@ -48,6 +48,9 @@ endif"}}}
 if !exists('g:gundo_preview_height')"{{{
     let g:gundo_preview_height = 15
 endif"}}}
+if !exists('g:gundo_preview_bottom')"{{{
+    let g:gundo_preview_bottom = 0
+endif"}}}
 if !exists('g:gundo_right')"{{{
     let g:gundo_right = 0
 endif"}}}
@@ -542,6 +545,13 @@ function! s:GundoOpenGraph()"{{{
     if existing_gundo_buffer == -1
         exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
         exe "new __Gundo__"
+        if g:gundo_preview_bottom
+            if g:gundo_right
+                wincmd L
+            else
+                wincmd H
+            endif
+        endif
         call s:GundoResizeBuffers(winnr())
     else
         let existing_gundo_window = bufwinnr(existing_gundo_buffer)
@@ -552,7 +562,15 @@ function! s:GundoOpenGraph()"{{{
             endif
         else
             exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
-            exe "split +buffer" . existing_gundo_buffer
+            if g:gundo_preview_bottom
+                if g:gundo_right
+                    exe "botright vsplit +buffer" . existing_gundo_buffer
+                else
+                    exe "topleft vsplit +buffer" . existing_gundo_buffer
+                endif
+            else
+                exe "split +buffer" . existing_gundo_buffer
+            endif
             call s:GundoResizeBuffers(winnr())
         endif
     endif
@@ -562,12 +580,14 @@ function! s:GundoOpenPreview()"{{{
     let existing_preview_buffer = bufnr("__Gundo_Preview__")
 
     if existing_preview_buffer == -1
-        exe "vnew __Gundo_Preview__"
-
-        if g:gundo_right
-            wincmd L
+        if g:gundo_preview_bottom
+            exe "botright new __Gundo_Preview__"
         else
-            wincmd H
+            if g:gundo_right
+                exe "botright vnew __Gundo_Preview__"
+            else
+                exe "topleft vnew __Gundo_Preview__"
+            endif
         endif
     else
         let existing_preview_window = bufwinnr(existing_preview_buffer)
@@ -577,12 +597,14 @@ function! s:GundoOpenPreview()"{{{
                 exe existing_preview_window . "wincmd w"
             endif
         else
-            exe "vsplit +buffer" . existing_preview_buffer
-
-            if g:gundo_right
-                wincmd L
+            if g:gundo_preview_bottom
+                exe "botright split +buffer" . existing_preview_buffer
             else
-                wincmd H
+                if g:gundo_right
+                    exe "botright vsplit +buffer" . existing_preview_buffer
+                else
+                    exe "topleft vsplit +buffer" . existing_preview_buffer
+                endif
             endif
         endif
     endif

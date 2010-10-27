@@ -19,7 +19,8 @@ CONTENTS                                                      *Gundo-contents*
     3. Configuration .................. |GundoConfig|
         3.1 gundo_width ............... |gundo_width|
         3.2 gundo_preview_height ...... |gundo_preview_height|
-        3.2 gundo_right ............... |gundo_right|
+        3.3 gundo_preview_bottom ...... |gundo_preview_bottom|
+        3.4 gundo_right ............... |gundo_right|
     4. License ........................ |GundoLicense|
     5. Bugs ........................... |GundoBugs|
     6. Contributing ................... |GundoContributing|
@@ -136,7 +137,24 @@ Set the vertical height of the Gundo preview.
 Default: 15
 
 ------------------------------------------------------------------------------
-3.3 g:gundo_right                                                *gundo_right*
+3.3 g:gundo_preview_bottom                              *gundo_preview_bottom*
+
+Force the preview window below current windows instead of below the graph.
+This gives the preview window more space to show the unified diff.
+
+Example:
+
+   +--------+            +--------+
+   !g!      !            !      !g!
+   !g!      !     or     !      !g!
+   !g!______!            !______!g!
+   !g!pppppp!            !pppppp!g!
+   +--------+            +--------+
+
+Default: 0
+
+------------------------------------------------------------------------------
+3.4 g:gundo_right                                                *gundo_right*
 
 Set this to 1 to make the Gundo graph (and preview) open on the right side
 instead of the left.
