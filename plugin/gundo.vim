@@ -382,18 +382,42 @@ import vim
 
 normal = lambda s: vim.command('normal %s' % s)
 
+MISSING_BUFFER = "Cannot find Gundo's target buffer (%s)"
+MISSING_WINDOW = "Cannot find window (%s) for Gundo's target buffer (%s)"
+
+def _check_sanity():
+    '''Check to make sure we're not crazy.
+    
+    Does the following things:
+
+        * Make sure the target buffer still exists.
+    '''
+    b = int(vim.eval('g:gundo_target_n'))
+
+    n = vim.eval('bufname(%d)' % b)
+    if not n:
+        vim.command('echo "%s"' % (MISSING_BUFFER % b))
+        return False
+
+    w = int(vim.eval('bufwinnr(%d)' % b))
+    if w == -1:
+        vim.command('echo "%s"' % (MISSING_WINDOW % (w, b)))
+        return False
+
+    return True
+
 def _goto_window_for_buffer(b):
-    w = vim.eval('bufwinnr(%d)' % int(b))
-    vim.command('%dwincmd w' % int(w))
+    w = int(vim.eval('bufwinnr(%d)' % int(b)))
+    vim.command('%dwincmd w' % w)
 
 def _goto_window_for_buffer_name(bn):
     b = vim.eval('bufnr("%s")' % bn)
-    _goto_window_for_buffer(b)
+    return _goto_window_for_buffer(b)
 
 def _undo_to(n):
     n = int(n)
     if n == 0:
-        vim.command('silent earlier 999999999d')
+        vim.command('silent earlier %s' % vim.eval('&undolevels'))
     else:
         vim.command('silent undo %d' % n)
 
@@ -460,10 +484,22 @@ ENDPYTHON
 "}}}
 
 "{{{ Gundo utility functions
-function! s:GundoGetTargetState()
+
+function! s:GundoGetTargetState()"{{{
     let target_line = matchstr(getline("."), '\v\[[0-9]+\]')
     return matchstr(target_line, '\v[0-9]+')
 endfunction"}}}
+
+function! s:GundoGoToWindowForBufferName(name)"{{{
+    if bufwinnr(bufnr(a:name)) != -1
+        exe bufwinnr(bufnr(a:name)) . "wincmd w"
+        return 1
+    else
+        return 0
+    endif
+endfunction"}}}
+
+"}}}
 
 "{{{ Gundo buffer settings
 
@@ -534,10 +570,10 @@ endfunction"}}}
 "{{{ Gundo buffer/window management
 
 function! s:GundoResizeBuffers(backto)"{{{
-    exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
+    call s:GundoGoToWindowForBufferName('__Gundo__')
     exe "vertical resize " . g:gundo_width
 
-    exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
+    call s:GundoGoToWindowForBufferName('__Gundo_Preview__')
     exe "resize " . g:gundo_preview_height
 
     exe a:backto . "wincmd w"
@@ -596,17 +632,15 @@ function! s:GundoOpenPreview()"{{{
 endfunction"}}}
 
 function! s:GundoClose()"{{{
-        if bufwinnr(bufnr('__Gundo__')) != -1
-            exe bufwinnr(bufnr('__Gundo__')) . "wincmd w"
-            quit
-        endif
+    if s:GundoGoToWindowForBufferName('__Gundo__')
+        quit
+    endif
 
-        if bufwinnr(bufnr('__Gundo_Preview__')) != -1
-            exe bufwinnr(bufnr('__Gundo_Preview__')) . "wincmd w"
-            quit
-        endif
+    if s:GundoGoToWindowForBufferName('__Gundo_Preview__')
+        quit
+    endif
 
-        exe bufwinnr(g:gundo_target_n) . "wincmd w"
+    exe bufwinnr(g:gundo_target_n) . "wincmd w"
 endfunction"}}}
 
 function! s:GundoToggle()"{{{
@@ -696,6 +730,9 @@ endfunction"}}}
 function! s:GundoRenderGraph()"{{{
 python << ENDPYTHON
 def GundoRenderGraph():
+    if not _check_sanity():
+        return
+
     nodes, nmap = make_nodes()
 
     for node in nodes:
@@ -793,6 +830,9 @@ def _generate_preview_diff(current, node_before, node_after):
                                      before_time, after_time))
 
 def GundoRenderPreview():
+    if not _check_sanity():
+        return
+
     target_n = vim.eval('a:target')
 
     # Check that there's an undo state. There may not be if we're talking about
@@ -824,28 +864,40 @@ endfunction"}}}
 "{{{ Gundo undo/redo
 
 function! s:GundoRevert()"{{{
-    let target_num = s:GundoGetTargetState()
-    let back = bufwinnr(g:gundo_target_n)
-    exe back . "wincmd w"
 python << ENDPYTHON
-_undo_to(vim.eval('target_num'))
+def GundoRevert():
+    if not _check_sanity():
+        return
+
+    target_n = int(vim.eval('s:GundoGetTargetState()'))
+    back = vim.eval('g:gundo_target_n')
+
+    _goto_window_for_buffer(back)
+    _undo_to(target_n)
+
+    vim.command('GundoRenderGraph')
+    _goto_window_for_buffer(back)
+
+GundoRevert()
 ENDPYTHON
-    GundoRenderGraph
-    exe back . "wincmd w"
 endfunction"}}}
 
 function! s:GundoPlayTo()"{{{
-    let target_num = s:GundoGetTargetState()
-    let back = bufwinnr(g:gundo_target_n)
-    exe back . "wincmd w"
-    normal zR
-
 python << ENDPYTHON
 def GundoPlayTo():
+    if not _check_sanity():
+        return
+
+    target_n = int(vim.eval('s:GundoGetTargetState()'))
+    back = int(vim.eval('bufwinnr(g:gundo_target_n)'))
+
+    _goto_window_for_buffer(back)
+    normal('zR')
+
     nodes, nmap = make_nodes()
 
     start = nmap[changenr(nodes)]
-    end = nmap[int(vim.eval('target_num'))]
+    end = nmap[target_n]
 
     def _walk_branch(origin, dest):
         rev = origin.n < dest.n
@@ -877,7 +929,7 @@ def GundoPlayTo():
         _undo_to(node.n)
         vim.command('GundoRenderGraph')
         normal('zz')
-        vim.command('%dwincmd w' % int(vim.eval('back')))
+        _goto_window_for_buffer(back)
         vim.command('redraw')
         vim.command('sleep 60m')
 
