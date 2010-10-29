@@ -685,9 +685,7 @@ function! s:GundoToggle()"{{{
         exe bufwinnr(g:gundo_target_n) . "wincmd w"
         GundoRender
 
-        " TODO: Move these lines into RenderPreview
-        let target_num = s:GundoGetTargetState()
-        call s:GundoRenderPreview(target_num)
+        call s:GundoRenderPreview()
     endif
 endfunction"}}}
 
@@ -739,8 +737,7 @@ function! s:GundoMove(direction)"{{{
         call cursor(0, idx2 + 1)
     endif
 
-    let target_num = s:GundoGetTargetState()
-    call s:GundoRenderPreview(target_num)
+    call s:GundoRenderPreview()
 endfunction"}}}
 
 "}}}
@@ -794,7 +791,7 @@ GundoRenderGraph()
 ENDPYTHON
 endfunction"}}}
 
-function! s:GundoRenderPreview(target)"{{{
+function! s:GundoRenderPreview()"{{{
 python << ENDPYTHON
 import difflib
 
@@ -853,22 +850,22 @@ def GundoRenderPreview():
     if not _check_sanity():
         return
 
-    target_n = vim.eval('a:target')
+    target_state = vim.eval('s:GundoGetTargetState()')
 
     # Check that there's an undo state. There may not be if we're talking about
     # a buffer with no changes yet.
-    if target_n == None:
+    if target_state == None:
         _goto_window_for_buffer_name('__Gundo__')
         return
     else:
-        target_n = int(vim.eval('a:target'))
+        target_state = int(target_state)
 
     _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
 
     nodes, nmap = make_nodes()
     current = changenr(nodes)
 
-    node_after = nmap[target_n]
+    node_after = nmap[target_state]
     node_before = node_after.parent
 
     _output_preview_text(_generate_preview_diff(current, node_before, node_after))
