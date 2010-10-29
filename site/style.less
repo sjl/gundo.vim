@@ -1,0 +1,99 @@
+@font-face {
+  font-family: "Essays 1743";
+  src: url(Essays1743.ttf);
+}
+
+html {
+    overflow-y: scroll;
+}
+
+html, body {
+    background-color: #fdfdfd;
+    color: #111;
+    font: normal 16px/22px Palatino, Georgia, serif;
+
+    .wrap {
+        width: 599px;
+        margin: 48px auto;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: "Essays 1743", Palatino, serif;
+        line-height: 1;
+        margin: 0;
+        margin-bottom: 22px;
+    }
+    a {
+        color: #04C;
+        text-decoration: none;
+        
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+    p, pre {
+        margin: 0 0 22px 0;
+    }
+    code {
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        font: normal 14px Menlo, Monaco, Consolas, monospace;
+        padding: 1px 4px;
+        line-height: 1;
+    }
+    pre {
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        font: normal 14px Menlo, Monaco, Consolas, monospace;
+        margin-left: 22px;
+        padding: 11px;
+    }
+    img {
+        border: 1px solid #ccc;
+        padding: 4px;
+        float: right;
+        margin-left: 36px;
+        margin-bottom: 44px;
+    }
+}
+#repos {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+}
+header {
+    h1 {
+        text-align: center;
+        font-size: 92px;
+        margin-bottom: 6px;
+    }
+    h2 {
+        color: #444;
+        text-align: center;
+        font-size: 36px;
+        letter-spacing: -1px;
+    }
+}
+section {
+    margin-top: 44px;
+
+    h1 {
+        font-size: 38px;
+    }
+    h2 {
+        font-size: 28px;
+    }
+    ol.changelog {
+        list-style-type: none;
+        padding-left: 0;
+        font-weight: bold;
+        
+        ul {
+            font-weight: normal;
+        }
+    }
+}
+footer {
+    text-align: center;
+    font-style: italic;
+    margin-top: 66px;
+} 
