@@ -397,8 +397,7 @@ def _check_sanity():
     '''
     b = int(vim.eval('g:gundo_target_n'))
 
-    n = vim.eval('bufname(%d)' % b)
-    if not n:
+    if not vim.eval('bufloaded(%d)' % b):
         vim.command('echo "%s"' % (MISSING_BUFFER % b))
         return False
 
