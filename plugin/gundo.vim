@@ -475,7 +475,6 @@ def make_nodes():
     return nodes, nmap
 
 def changenr(nodes):
-    # TODO: This seems to sometimes be wrong right after you open a file...
     _curhead_l = list(itertools.dropwhile(lambda n: not n.curhead, nodes))
     if _curhead_l:
         current = _curhead_l[0].parent.n
