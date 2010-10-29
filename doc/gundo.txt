@@ -15,7 +15,8 @@ CONTENTS                                                      *Gundo-contents*
     4. License ........................ |GundoLicense|
     5. Bugs ........................... |GundoBugs|
     6. Contributing ................... |GundoContributing|
-    7. Credits ........................ |GundoCredits|
+    7. Changelog ...................... |GundoChangelog|
+    8. Credits ........................ |GundoCredits|
 
 ==============================================================================
 1. Intro                                                          *GundoIntro*
@@ -173,7 +174,13 @@ BitBucket: http://bitbucket.org/sjl/gundo.vim/
 GitHub: http://github.com/sjl/gundo.vim/
 
 ==============================================================================
-7. Credits                                                      *GundoCredits*
+7. Changelog                                                  *GundoChangelog*
+
+v1.0.0
+    Initial stable release.
+
+==============================================================================
+8. Credits                                                      *GundoCredits*
 
 The graphing code was all taken from Mercurial, hence the GPLv2+ license.
 
