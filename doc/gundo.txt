@@ -187,8 +187,10 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+Development version
+    * Add the g:gundo_disable setting.
 v1.0.0
-    Initial stable release.
+    * Initial stable release.
 
 ==============================================================================
 8. Credits                                                      *GundoCredits*
