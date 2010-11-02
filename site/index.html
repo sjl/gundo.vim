@@ -93,6 +93,7 @@
                             <li><a href="#gundo_preview_height">g:gundo_preview_height</a></li>
                             <li><a href="#gundo_preview_bottom">g:gundo_preview_bottom</a></li>
                             <li><a href="#gundo_right">g:gundo_right</a></li>
+                            <li><a href="#gundo_disable">g:gundo_disable</a></li>
                         </ul>
                     </li>
                     <li><a href="#license">License</a></li>
@@ -274,6 +275,18 @@ let g:gundo_right = 1
                 </p>
 
                 <p>Default: 0 (off, open on the left side)</p>
+
+                <a name="gundo_disable"></a>
+                <h2>g:gundo_disable</h2>
+
+                <p>Set this to 1 to disable Gundo entirely.</p>
+
+                <p>
+                    Useful if you use the same <code>~/.vim</code> folder on
+                    multiple machines, and some of them may not have Python support.
+                </p>
+
+                <p>Default: 0 (Gundo is enabled as usual)</p>
             </section>
             <section>
                 <a name="license"></a>

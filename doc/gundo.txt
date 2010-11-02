@@ -12,6 +12,7 @@ CONTENTS                                                      *Gundo-contents*
         3.2 gundo_preview_height ...... |gundo_preview_height|
         3.3 gundo_preview_bottom ...... |gundo_preview_bottom|
         3.4 gundo_right ............... |gundo_right|
+        3.5 gundo_disable ............. |gundo_disable|
     4. License ........................ |GundoLicense|
     5. Bugs ........................... |GundoBugs|
     6. Contributing ................... |GundoContributing|
@@ -152,6 +153,16 @@ Set this to 1 to make the Gundo graph (and preview) open on the right side
 instead of the left.
 
 Default: 0 (off, open on the left side)
+
+------------------------------------------------------------------------------
+3.5 g:gundo_disable                                            *gundo_disable*
+
+Set this to 1 to disable Gundo entirely.
+
+Useful if you use the same ~/.vim folder on multiple machines, and some of
+them may not have Python support.
+
+Default: 0 (Gundo is enabled as usual)
 
 ==============================================================================
 4. License                                                      *GundoLicense*
