@@ -707,14 +707,13 @@ endfunction"}}}
 
 "{{{ Gundo movement
 
-function! s:GundoMove(direction)"{{{
+function! s:GundoMove(direction) range"{{{
     let start_line = getline('.')
+    let distance = 2 * v:count1
 
-    " If we're in between two nodes we move by one to get back on track.
+    " If we're in between two nodes we move by one less to get back on track.
     if stridx(start_line, '[') == -1
-        let distance = 1
-    else
-        let distance = 2
+        let distance = distance - 1
     endif
 
     let target_n = line('.') + (distance * a:direction)

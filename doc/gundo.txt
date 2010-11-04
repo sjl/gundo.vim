@@ -189,6 +189,7 @@ GitHub: http://github.com/sjl/gundo.vim/
 
 Development version
     * Add the g:gundo_disable setting.
+    * Fix movement commands with counts in the graph.
 v1.0.0
     * Initial stable release.
 
