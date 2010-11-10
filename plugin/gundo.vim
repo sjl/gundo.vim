@@ -419,7 +419,7 @@ def _goto_window_for_buffer_name(bn):
 def _undo_to(n):
     n = int(n)
     if n == 0:
-        vim.command('silent earlier %s' % vim.eval('&undolevels'))
+        vim.command('silent earlier %s' % (int(vim.eval('&undolevels')) + 1))
     else:
         vim.command('silent undo %d' % n)
 
