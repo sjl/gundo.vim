@@ -390,7 +390,7 @@ MISSING_WINDOW = "Cannot find window (%s) for Gundo's target buffer (%s)"
 
 def _check_sanity():
     '''Check to make sure we're not crazy.
-    
+
     Does the following things:
 
         * Make sure the target buffer still exists.
@@ -494,6 +494,14 @@ endfunction"}}}
 function! s:GundoGoToWindowForBufferName(name)"{{{
     if bufwinnr(bufnr(a:name)) != -1
         exe bufwinnr(bufnr(a:name)) . "wincmd w"
+        return 1
+    else
+        return 0
+    endif
+endfunction"}}}
+
+function! s:GundoIsVisible()"{{{
+    if bufwinnr(bufnr("__Gundo__")) != -1 || bufwinnr(bufnr("__Gundo_Preview__")) != -1
         return 1
     else
         return 0
@@ -663,29 +671,21 @@ function! s:GundoClose()"{{{
     exe bufwinnr(g:gundo_target_n) . "wincmd w"
 endfunction"}}}
 
+function! s:GundoOpen()"{{{
+    call s:GundoOpenPreview()
+    exe bufwinnr(g:gundo_target_n) . "wincmd w"
+
+    call s:GundoRenderGraph()
+    call s:GundoRenderPreview()
+endfunction"}}}
+
 function! s:GundoToggle()"{{{
-    if expand('%') == "__Gundo__"
+    if s:GundoIsVisible()
         call s:GundoClose()
     else
-        if expand('%') != "__Gundo_Preview__"
-            " Record the previous buffer number.
-            "
-            " This sucks because we're not getting the window number, and there
-            " may be more than one window viewing the same buffer, so we might
-            " go back to the wrong one.
-            "
-            " Unfortunately window numbers change as we open more windows.
-            "
-            " TODO: Figure out how to fix this.
-            let g:gundo_target_n = bufnr('')
-            let g:gundo_target_f = @%
-        endif
-
-        call s:GundoOpenPreview()
-        exe bufwinnr(g:gundo_target_n) . "wincmd w"
-        GundoRender
-
-        call s:GundoRenderPreview()
+        let g:gundo_target_n = bufnr('')
+        let g:gundo_target_f = @%
+        call s:GundoOpen()
     endif
 endfunction"}}}
 
@@ -702,7 +702,7 @@ function! s:GundoMouseDoubleClick()"{{{
         call s:GundoRevert()
     endif
 endfunction"}}}
- 
+
 "}}}
 
 "{{{ Gundo movement
@@ -770,7 +770,7 @@ def GundoRenderGraph():
     target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
     header = (INLINE_HELP % target).splitlines()
 
-    vim.command('GundoOpenGraph')
+    vim.command('call s:GundoOpenGraph()')
     vim.command('setlocal modifiable')
     vim.current.buffer[:] = (header + result)
     vim.command('setlocal nomodifiable')
@@ -867,6 +867,7 @@ def GundoRenderPreview():
     node_after = nmap[target_state]
     node_before = node_after.parent
 
+    vim.command('call s:GundoOpenPreview()')
     _output_preview_text(_generate_preview_diff(current, node_before, node_after))
 
     _goto_window_for_buffer_name('__Gundo__')
@@ -958,7 +959,6 @@ endfunction"}}}
 "}}}
 
 "{{{ Misc
-command! -nargs=0 GundoOpenGraph call s:GundoOpenGraph()
 command! -nargs=0 GundoToggle call s:GundoToggle()
 command! -nargs=0 GundoRenderGraph call s:GundoRenderGraph()
 autocmd BufNewFile __Gundo__ call s:GundoSettingsGraph()

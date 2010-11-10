@@ -190,6 +190,8 @@ GitHub: http://github.com/sjl/gundo.vim/
 Development version
     * Add the g:gundo_disable setting.
     * Fix movement commands with counts in the graph.
+    * Make GundoToggle close the Gundo windows if they're visible but not the
+      current window, instead of moving to them.
 v1.0.0
     * Initial stable release.
 
