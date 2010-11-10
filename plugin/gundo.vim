@@ -743,54 +743,7 @@ endfunction"}}}
 
 "{{{ Gundo rendering
 
-function! s:GundoRenderGraph()"{{{
-python << ENDPYTHON
-def GundoRenderGraph():
-    if not _check_sanity():
-        return
-
-    nodes, nmap = make_nodes()
-
-    for node in nodes:
-        node.children = [n for n in nodes if n.parent == node]
-
-    def walk_nodes(nodes):
-        for node in nodes:
-            if node.parent:
-                yield (node, [node.parent])
-            else:
-                yield (node, [])
-
-    dag = sorted(nodes, key=lambda n: int(n.n), reverse=True)
-    current = changenr(nodes)
-
-    result = generate(walk_nodes(dag), asciiedges, current).rstrip().splitlines()
-    result = [' ' + l for l in result]
-
-    target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
-    header = (INLINE_HELP % target).splitlines()
-
-    vim.command('call s:GundoOpenGraph()')
-    vim.command('setlocal modifiable')
-    vim.current.buffer[:] = (header + result)
-    vim.command('setlocal nomodifiable')
-
-    i = 1
-    for line in result:
-        try:
-            line.split('[')[0].index('@')
-            i += 1
-            break
-        except ValueError:
-            pass
-        i += 1
-    vim.command('%d' % (i+len(header)-1))
-
-GundoRenderGraph()
-ENDPYTHON
-endfunction"}}}
-
-function! s:GundoRenderPreview()"{{{
+"{{{ Rendering utility functions
 python << ENDPYTHON
 import difflib
 
@@ -844,7 +797,58 @@ def _generate_preview_diff(current, node_before, node_after):
     return list(difflib.unified_diff(before_lines, after_lines,
                                      before_name, after_name,
                                      before_time, after_time))
+ENDPYTHON
+"}}}
 
+function! s:GundoRenderGraph()"{{{
+python << ENDPYTHON
+def GundoRenderGraph():
+    if not _check_sanity():
+        return
+
+    nodes, nmap = make_nodes()
+
+    for node in nodes:
+        node.children = [n for n in nodes if n.parent == node]
+
+    def walk_nodes(nodes):
+        for node in nodes:
+            if node.parent:
+                yield (node, [node.parent])
+            else:
+                yield (node, [])
+
+    dag = sorted(nodes, key=lambda n: int(n.n), reverse=True)
+    current = changenr(nodes)
+
+    result = generate(walk_nodes(dag), asciiedges, current).rstrip().splitlines()
+    result = [' ' + l for l in result]
+
+    target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
+    header = (INLINE_HELP % target).splitlines()
+
+    vim.command('call s:GundoOpenGraph()')
+    vim.command('setlocal modifiable')
+    vim.current.buffer[:] = (header + result)
+    vim.command('setlocal nomodifiable')
+
+    i = 1
+    for line in result:
+        try:
+            line.split('[')[0].index('@')
+            i += 1
+            break
+        except ValueError:
+            pass
+        i += 1
+    vim.command('%d' % (i+len(header)-1))
+
+GundoRenderGraph()
+ENDPYTHON
+endfunction"}}}
+
+function! s:GundoRenderPreview()"{{{
+python << ENDPYTHON
 def GundoRenderPreview():
     if not _check_sanity():
         return
