@@ -940,7 +940,6 @@ def GundoRenderChangePreview():
 
     node_after = nmap[target_state]
     node_before = nmap[current]
-    print node_after, node_before
 
     vim.command('call s:GundoOpenPreview()')
     _output_preview_text(_generate_change_preview_diff(current, node_before, node_after))
