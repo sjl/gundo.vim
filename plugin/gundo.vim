@@ -55,6 +55,8 @@ if !exists('g:gundo_right')"{{{
     let g:gundo_right = 0
 endif"}}}
 
+let s:inline_help_length = 6
+
 "}}}
 
 "{{{ Mercurial's graphlog code
@@ -427,7 +429,8 @@ def _undo_to(n):
 INLINE_HELP = '''\
 " Gundo for %s [%d]
 " j/k  - move between undo states
-" <cr> - revert to that state
+" p    - preview diff of selected and current states
+" <cr> - revert to selected state
 
 '''
 ENDPYTHON
@@ -518,6 +521,7 @@ function! s:GundoMapGraph()"{{{
     nnoremap <script> <silent> <buffer> k             :call <sid>GundoMove(-1)<CR>
     nnoremap <script> <silent> <buffer> gg            gg:call <sid>GundoMove(1)<CR>
     nnoremap <script> <silent> <buffer> P             :call <sid>GundoPlayTo()<CR>
+    nnoremap <script> <silent> <buffer> p             :call <sid>GundoRenderChangePreview()<CR>
     nnoremap <script> <silent> <buffer> q             :call <sid>GundoClose()<CR>
     cabbrev  <script> <silent> <buffer> q             call <sid>GundoClose()
     cabbrev  <script> <silent> <buffer> quit          call <sid>GundoClose()
@@ -719,8 +723,8 @@ function! s:GundoMove(direction) range"{{{
     let target_n = line('.') + (distance * a:direction)
 
     " Bound the movement to the graph.
-    if target_n <= 4
-        call cursor(5, 0)
+    if target_n <= s:inline_help_length - 1 
+        call cursor(s:inline_help_length, 0)
     else
         call cursor(target_n, 0)
     endif
@@ -791,6 +795,26 @@ def _generate_preview_diff(current, node_before, node_after):
         before_time = _fmt_time(node_before.time)
         after_name = node_after.n
         after_time = _fmt_time(node_after.time)
+
+    _undo_to(current)
+
+    return list(difflib.unified_diff(before_lines, after_lines,
+                                     before_name, after_name,
+                                     before_time, after_time))
+
+def _generate_change_preview_diff(current, node_before, node_after):
+    _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
+
+    _undo_to(node_before.n)
+    before_lines = vim.current.buffer[:]
+
+    _undo_to(node_after.n)
+    after_lines = vim.current.buffer[:]
+
+    before_name = node_before.n or 'Original'
+    before_time = node_before.time and _fmt_time(node_before.time) or ''
+    after_name = node_after.n or 'Original'
+    after_time = node_after.time and _fmt_time(node_after.time) or ''
 
     _undo_to(current)
 
@@ -877,6 +901,40 @@ def GundoRenderPreview():
     _goto_window_for_buffer_name('__Gundo__')
 
 GundoRenderPreview()
+ENDPYTHON
+endfunction"}}}
+
+function! s:GundoRenderChangePreview()"{{{
+python << ENDPYTHON
+def GundoRenderChangePreview():
+    if not _check_sanity():
+        return
+
+    target_state = vim.eval('s:GundoGetTargetState()')
+
+    # Check that there's an undo state. There may not be if we're talking about
+    # a buffer with no changes yet.
+    if target_state == None:
+        _goto_window_for_buffer_name('__Gundo__')
+        return
+    else:
+        target_state = int(target_state)
+
+    _goto_window_for_buffer(vim.eval('g:gundo_target_n'))
+
+    nodes, nmap = make_nodes()
+    current = changenr(nodes)
+
+    node_after = nmap[target_state]
+    node_before = nmap[current]
+    print node_after, node_before
+
+    vim.command('call s:GundoOpenPreview()')
+    _output_preview_text(_generate_change_preview_diff(current, node_before, node_after))
+
+    _goto_window_for_buffer_name('__Gundo__')
+
+GundoRenderChangePreview()
 ENDPYTHON
 endfunction"}}}
 

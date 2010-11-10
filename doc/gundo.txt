@@ -96,6 +96,10 @@ of the change that state made.
 Pressing enter on a state (or double clicking on it) will revert the contents
 of the file to match that state.
 
+You can use p on a state to make the preview window show the diff between
+your current state and the selected state, instead of a preview of what the
+selected state changed.
+
 Pressing P while on a state will initiate "play to" mode targeted at that
 state. This will replay all the changes between your current state and the
 target, with a slight pause after each change. It's mostly useless, but can be
@@ -192,6 +196,8 @@ Development version
     * Fix movement commands with counts in the graph.
     * Make GundoToggle close the Gundo windows if they're visible but not the
       current window, instead of moving to them.
+    * Add the 'p' mapping to preview the result of reverting to the selected
+      state.
 v1.0.0
     * Initial stable release.
 
