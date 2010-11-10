@@ -199,14 +199,14 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
-Development version
-    * Add the g:gundo_disable setting.
-    * Fix movement commands with counts in the graph.
+v2.0.0
     * Make GundoToggle close the Gundo windows if they're visible but not the
       current window, instead of moving to them.
+    * Add the g:gundo_help setting.
+    * Add the g:gundo_disable setting.
     * Add the 'p' mapping to preview the result of reverting to the selected
       state.
-    * Add the g:gundo_help setting.
+    * Fix movement commands with counts in the graph.
 v1.0.0
     * Initial stable release.
 
