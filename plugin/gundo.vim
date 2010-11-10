@@ -54,8 +54,9 @@ endif"}}}
 if !exists('g:gundo_right')"{{{
     let g:gundo_right = 0
 endif"}}}
-
-let s:inline_help_length = 6
+if !exists('g:gundo_help')"{{{
+    let g:gundo_help = 1
+endif"}}}
 
 "}}}
 
@@ -511,6 +512,14 @@ function! s:GundoIsVisible()"{{{
     endif
 endfunction"}}}
 
+function! s:GundoInlineHelpLength()"{{{
+    if g:gundo_help
+        return 6
+    else
+        return 0
+    endif
+endfunction"}}}
+
 "}}}
 
 "{{{ Gundo buffer settings
@@ -723,8 +732,8 @@ function! s:GundoMove(direction) range"{{{
     let target_n = line('.') + (distance * a:direction)
 
     " Bound the movement to the graph.
-    if target_n <= s:inline_help_length - 1 
-        call cursor(s:inline_help_length, 0)
+    if target_n <= s:GundoInlineHelpLength() - 1
+        call cursor(s:GundoInlineHelpLength(), 0)
     else
         call cursor(target_n, 0)
     endif
@@ -849,7 +858,11 @@ def GundoRenderGraph():
     result = [' ' + l for l in result]
 
     target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
-    header = (INLINE_HELP % target).splitlines()
+
+    if int(vim.eval('g:gundo_help')):
+        header = (INLINE_HELP % target).splitlines()
+    else:
+        header = []
 
     vim.command('call s:GundoOpenGraph()')
     vim.command('setlocal modifiable')

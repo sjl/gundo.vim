@@ -12,7 +12,8 @@ CONTENTS                                                      *Gundo-contents*
         3.2 gundo_preview_height ...... |gundo_preview_height|
         3.3 gundo_preview_bottom ...... |gundo_preview_bottom|
         3.4 gundo_right ............... |gundo_right|
-        3.5 gundo_disable ............. |gundo_disable|
+        3.5 gundo_help ................ |gundo_help|
+        3.6 gundo_disable ............. |gundo_disable|
     4. License ........................ |GundoLicense|
     5. Bugs ........................... |GundoBugs|
     6. Contributing ................... |GundoContributing|
@@ -159,7 +160,14 @@ instead of the left.
 Default: 0 (off, open on the left side)
 
 ------------------------------------------------------------------------------
-3.5 g:gundo_disable                                            *gundo_disable*
+3.5 g:gundo_help                                                  *gundo_help*
+
+Set this to 0 to disable the help text in the Gundo graph window.
+
+Default: 1 (show the help)
+
+------------------------------------------------------------------------------
+3.6 g:gundo_disable                                            *gundo_disable*
 
 Set this to 1 to disable Gundo entirely.
 
@@ -198,6 +206,7 @@ Development version
       current window, instead of moving to them.
     * Add the 'p' mapping to preview the result of reverting to the selected
       state.
+    * Add the g:gundo_help setting.
 v1.0.0
     * Initial stable release.
 
