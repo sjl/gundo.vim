@@ -428,7 +428,7 @@ def _undo_to(n):
 
 
 INLINE_HELP = '''\
-" Gundo for %s [%d]
+" Gundo for %s (%d)
 " j/k  - move between undo states
 " p    - preview diff of selected and current states
 " <cr> - revert to selected state
