@@ -7,7 +7,7 @@ Gundo bundles Luc Hermitte's [UT][] framework to make the process less painful.
 
 To run a test, `cd` into the `tests` directory and use:
 
-    ./run-tests.sh [TEST FILE].vim
+    ./run-tests.sh [[some-test.vim] ...]
 
 The script will run the console vim command with its own vimrc and .vim
 directory, so none of your other plugins should interfere. The result of the
@@ -17,5 +17,4 @@ The `q` key will be remapped to perform `:qa!` so you can close everything
 quickly if it all looks good.
 
 The `run-tests.sh` script is still a work in progress.  I need to figure out
-a good way of running multiple tests and collecting results.  Suggestions
-and/or patches are very welcome.
+a good way of collecting results.  Suggestions and/or patches are very welcome.

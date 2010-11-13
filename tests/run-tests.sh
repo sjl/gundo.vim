@@ -2,4 +2,12 @@
 
 set -e
 
-vim -u vimrc_test -c ":UTRun $1"
+if [[ $# -eq 0 ]]
+then
+    TESTS="`ls *.vim | tr "\n" ' '`"
+else
+    IFS=' '
+    TESTS="$*"
+fi
+
+vim -u vimrc_test -c ":UTRun $TESTS"

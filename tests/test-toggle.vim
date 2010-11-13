@@ -5,7 +5,7 @@ UTSuite [Gundo] Testing Toggling
 
 function! s:Setup()"{{{
     exec 'edit test'
-    exec bufwinnr(bufnr('test')) . 'wincmd w'
+    call g:Goto('test')
 endfunction"}}}
 function! s:Teardown()"{{{
     if bufwinnr(bufnr('__Gundo__')) != -1
@@ -28,9 +28,6 @@ function! s:Teardown()"{{{
     if bufnr('test2') != -1
         exec 'bwipeout ' . bufnr('test2')
     endif
-endfunction"}}}
-function! s:Goto(buffername)"{{{
-    exec bufwinnr(bufnr(a:buffername)) . 'wincmd w'
 endfunction"}}}
 
 function! s:TestToggleBasic()"{{{
@@ -72,7 +69,7 @@ function! s:TestToggleWhenMoved()"{{{
     " Open Gundo
     GundoToggle
 
-    call s:Goto('test')
+    call g:Goto('test')
     Assert expand('%') == 'test'
 
     " Close Gundo
@@ -87,7 +84,7 @@ function! s:TestToggleWhenMoved()"{{{
     " Open Gundo
     GundoToggle
 
-    call s:Goto('__Gundo_Preview__')
+    call g:Goto('__Gundo_Preview__')
     Assert expand('%') == '__Gundo_Preview__'
 
     " Close Gundo
@@ -108,7 +105,7 @@ function! s:TestToggleReturnToTarget()"{{{
     Assert bufwinnr(bufnr('__Gundo_Preview__')) == -1
 
     exec 'new test2'
-    call s:Goto('test')
+    call g:Goto('test')
 
     " Toggle Gundo
     GundoToggle
@@ -118,7 +115,7 @@ function! s:TestToggleReturnToTarget()"{{{
     Assert expand('%') == 'test'
 
     " Move to test2
-    call s:Goto('test2')
+    call g:Goto('test2')
 
     " Toggle Gundo
     GundoToggle
