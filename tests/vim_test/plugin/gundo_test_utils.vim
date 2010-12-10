@@ -1,3 +1,5 @@
+let s:undolevels_save = &undolevels
+
 function! g:Goto(buffername)"{{{
     exec bufwinnr(bufnr(a:buffername)) . 'wincmd w'
 endfunction"}}}
@@ -25,6 +27,9 @@ endfunction"}}}
 
 function! g:TypeLineDone(text)"{{{
     exe "normal i" . a:text . "\n\e"
+
+    " Break the undo chain
+    let &undolevels = s:undolevels_save
 endfunction"}}}
 
 function! g:PrintTheFuckingBuffer()"{{{
