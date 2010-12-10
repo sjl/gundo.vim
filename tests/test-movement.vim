@@ -1,4 +1,4 @@
-UTSuite [Gundo] Testing Toggling
+UTSuite [Gundo] Testing Movement
 
 function! s:Setup()"{{{
     exec 'edit test'
