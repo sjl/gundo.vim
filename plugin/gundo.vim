@@ -623,7 +623,12 @@ endfunction"}}}
 
 function! s:GundoMove(direction) range"{{{
     let start_line = getline('.')
-    let distance = 2 * v:count1
+    if v:count1 == 0
+        let move_count = 1
+    else
+        let move_count = v:count1
+    endif
+    let distance = 2 * move_count
 
     " If we're in between two nodes we move by one less to get back on track.
     if stridx(start_line, '[') == -1
