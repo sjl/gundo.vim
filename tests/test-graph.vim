@@ -1,6 +1,3 @@
-let s:cpo_save=&cpo
-set cpo&vim
-
 UTSuite [Gundo] Testing Toggling
 
 function! s:Setup()"{{{
@@ -65,5 +62,3 @@ function! s:TestToggleBranches()"{{{
     call g:MoveUp()
     Assert g:CurrentLineContains("|/")
 endfunction"}}}
-
-let &cpo=s:cpo_save

@@ -1,6 +1,3 @@
-let s:cpo_save=&cpo
-set cpo&vim
-
 UTSuite [Gundo] Testing Toggling
 
 function! s:Setup()"{{{
@@ -124,5 +121,3 @@ function! s:TestToggleReturnToTarget()"{{{
     " We should be returned to test2
     Assert expand('%') == 'test2'
 endfunction"}}}
-
-let &cpo=s:cpo_save
