@@ -424,8 +424,11 @@ endfunction"}}}
 
 function! s:GundoMapGraph()"{{{
     nnoremap <script> <silent> <buffer> <CR>          :call <sid>GundoRevert()<CR>
+    nnoremap <script> <silent> <buffer> o             :call <sid>GundoRevert()<CR>
     nnoremap <script> <silent> <buffer> j             :call <sid>GundoMove(1)<CR>
     nnoremap <script> <silent> <buffer> k             :call <sid>GundoMove(-1)<CR>
+    nnoremap <script> <silent> <buffer> <down>        :call <sid>GundoMove(1)<CR>
+    nnoremap <script> <silent> <buffer> <up>          :call <sid>GundoMove(-1)<CR>
     nnoremap <script> <silent> <buffer> gg            gg:call <sid>GundoMove(1)<CR>
     nnoremap <script> <silent> <buffer> P             :call <sid>GundoPlayTo()<CR>
     nnoremap <script> <silent> <buffer> p             :call <sid>GundoRenderChangePreview()<CR>
