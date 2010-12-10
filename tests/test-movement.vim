@@ -63,9 +63,7 @@ function! s:TestMovementBasic()"{{{
     normal k
     Assert g:CurrentLineContains("[3]")
 
-
     " Test arrow mappings
-    Assert g:CurrentLineContains("[3]")
 
     " Move down
     exec "normal \<down>"
