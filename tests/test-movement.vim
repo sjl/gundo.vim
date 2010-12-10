@@ -62,6 +62,34 @@ function! s:TestMovementBasic()"{{{
     " Move up
     normal k
     Assert g:CurrentLineContains("[3]")
+
+
+    " Test arrow mappings
+    Assert g:CurrentLineContains("[3]")
+
+    " Move down
+    exec "normal \<down>"
+    Assert g:CurrentLineContains("[2]")
+
+    " Move down
+    exec "normal \<down>"
+    Assert g:CurrentLineContains("[1]")
+
+    " Move down
+    exec "normal \<down>"
+    Assert g:CurrentLineContains("[0]")
+
+    " Move up
+    exec "normal \<up>"
+    Assert g:CurrentLineContains("[1]")
+
+    " Move up
+    exec "normal \<up>"
+    Assert g:CurrentLineContains("[2]")
+
+    " Move up
+    exec "normal \<up>"
+    Assert g:CurrentLineContains("[3]")
 endfunction"}}}
 
 function! s:TestMovementLinear()"{{{
@@ -117,4 +145,8 @@ function! s:TestMovementLinear()"{{{
     " Move up
     normal k
     Assert g:CurrentLineContains("[3]")
+
+    " Move up
+    normal k
+    Assert g:CurrentLineContains("[4]")
 endfunction"}}}
