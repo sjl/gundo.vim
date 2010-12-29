@@ -17,7 +17,10 @@ endif
 let loaded_gundo = 1"}}}
 
 if v:version < '703'"{{{
-    echo  "Gundo requires Vim 7.3+"
+	function! s:GundoDidNotLoad()
+		echohl WarningMsg|echomsg "Gundo unavailable: requires Vim 7.3+"|echohl None
+	endfunction
+	command! -nargs=0 GundoToggle call s:GundoDidNotLoad()
     finish
 endif"}}}
 
