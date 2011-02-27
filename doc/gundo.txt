@@ -14,6 +14,8 @@ CONTENTS                                                      *Gundo-contents*
         3.4 gundo_right ............... |gundo_right|
         3.5 gundo_help ................ |gundo_help|
         3.6 gundo_disable ............. |gundo_disable|
+        3.7 gundo_map_move_older ...... |gundo_map_move_older|
+            gundo_map_move_newer ...... |gundo_map_move_newer|
     4. License ........................ |GundoLicense|
     5. Bugs ........................... |GundoBugs|
     6. Contributing ................... |GundoContributing|
@@ -175,6 +177,16 @@ Useful if you use the same ~/.vim folder on multiple machines, and some of
 them may not have Python support.
 
 Default: 0 (Gundo is enabled as usual)
+
+------------------------------------------------------------------------------
+3.7 g:gundo_map_move_older,g:gundo_map_move_newer       *gundo_map_move_older*
+                                                        *gundo_map_move_newer*
+
+These options let you change the keys that navigate the undo graph. This is
+useful if you use a Dvorak keyboard and have changed your movement keys.
+
+Default: gundo_map_move_older = "j"
+         gundo_map_move_newer = "k"
 
 ==============================================================================
 4. License                                                      *GundoLicense*
