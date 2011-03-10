@@ -179,7 +179,7 @@ them may not have Python support.
 Default: 0 (Gundo is enabled as usual)
 
 ------------------------------------------------------------------------------
-3.7 g:gundo_map_move_older,g:gundo_map_move_newer       *gundo_map_move_older*
+3.7 g:gundo_map_move_older, g:gundo_map_move_newer      *gundo_map_move_older*
                                                         *gundo_map_move_newer*
 
 These options let you change the keys that navigate the undo graph. This is
