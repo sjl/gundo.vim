@@ -17,10 +17,10 @@ endif
 let loaded_gundo = 1"}}}
 
 if v:version < '703'"{{{
-	function! s:GundoDidNotLoad()
-		echohl WarningMsg|echomsg "Gundo unavailable: requires Vim 7.3+"|echohl None
-	endfunction
-	command! -nargs=0 GundoToggle call s:GundoDidNotLoad()
+    function! s:GundoDidNotLoad()
+        echohl WarningMsg|echomsg "Gundo unavailable: requires Vim 7.3+"|echohl None
+    endfunction
+    command! -nargs=0 GundoToggle call s:GundoDidNotLoad()
     finish
 endif"}}}
 
@@ -33,15 +33,15 @@ import vim
 if sys.version_info[:2] < (2, 4):
     vim.command('let s:has_supported_python = 0')
 ENDPYTHON
-
-    " Python version is too old
-    if !s:has_supported_python
-        echo  "Gundo requires that Vim be compiled with Python 2.4+"
-        finish
-    endif
 else
-    " no Python support
-    echo  "Gundo requires that Vim be compiled with Python 2.4+"
+    let s:has_supported_python = 0
+endif
+
+if !s:has_supported_python
+    function! s:GundoDidNotLoad()
+        echohl WarningMsg|echomsg "Gundo requires Vim to be compiled with Python 2.4+"|echohl None
+    endfunction
+    command! -nargs=0 GundoToggle call s:GundoDidNotLoad()
     finish
 endif"}}}
 
