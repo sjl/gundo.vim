@@ -60,6 +60,12 @@ endif"}}}
 if !exists('g:gundo_help')"{{{
     let g:gundo_help = 1
 endif"}}}
+if !exists("g:gundo_map_move_older")"{{{
+    let g:gundo_map_move_older = 'j'
+endif"}}}
+if !exists("g:gundo_map_move_newer")"{{{
+    let g:gundo_map_move_newer = 'k'
+endif"}}}
 
 "}}}
 
@@ -426,14 +432,8 @@ endfunction"}}}
 "{{{ Gundo buffer settings
 
 function! s:GundoMapGraph()"{{{
-    if !exists("g:gundo_map_move_older")
-        let g:gundo_map_move_older = 'j'
-    endif
-    if !exists("g:gundo_map_move_newer")
-        let g:gundo_map_move_newer = 'k'
-    endif
-    exec 'nnoremap <script> <silent>'.g:gundo_map_move_older." :call <sid>GundoMove(1)<CR>"
-    exec 'nnoremap <script> <silent>'.g:gundo_map_move_newer." :call <sid>GundoMove(-1)<CR>"
+    exec 'nnoremap <script> <silent>' . g:gundo_map_move_older . " :call <sid>GundoMove(1)<CR>"
+    exec 'nnoremap <script> <silent>' . g:gundo_map_move_newer . " :call <sid>GundoMove(-1)<CR>"
     nnoremap <script> <silent> <buffer> <CR>          :call <sid>GundoRevert()<CR>
     nnoremap <script> <silent> <buffer> o             :call <sid>GundoRevert()<CR>
     nnoremap <script> <silent> <buffer> <down>        :call <sid>GundoMove(1)<CR>
