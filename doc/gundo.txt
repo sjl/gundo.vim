@@ -211,6 +211,14 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+v2.1.0
+    * Warnings about having an incompatible Vim and/or Python installation
+      are now deferred until the first time you try to use Gundo, instead
+      of being displayed on launch.
+    * The <j> and <k> mappings are now configurable with
+      g:gundo_map_move_older and g:gundo_map_move_newer.
+    * The o, <Up> and <Down> keys are now mapped in the Gundo pane.
+    * Improve and add several unit tests for Gundo.
 v2.0.0
     * Make GundoToggle close the Gundo windows if they're visible but not the
       current window, instead of moving to them.

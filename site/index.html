@@ -359,6 +359,27 @@ let g:gundo_right = 1
                 <h1>Changelog</h1>
                 
                 <ol class="changelog">
+                    <li>v2.1.0
+                        <li>
+                            Warnings about having an incompatible Vim and/or
+                            Python installation are now deferred until the
+                            first time you try to use Gundo, instead of being
+                            displayed on launch.
+                        </li>
+                        <li>
+                            The <code>j</code> and <code>k</code> mappings are
+                            now configurable with
+                            <code>g:gundo_map_move_older</code> and
+                            <code>g:gundo_map_move_newer</code>.
+                        </li>
+                        <li>
+                            The o, <code>Up</code> and <code>Down</code> keys
+                            are now mapped in the Gundo pane.
+                        </li>
+                        <li>
+                            Improve and add several unit tests for Gundo.
+                        </li>
+                    </li>
                     <li>v2.0.0
                         <ul>
                             <li>
