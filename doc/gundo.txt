@@ -211,6 +211,8 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+v2.1.1
+    * Fix a bug with the movement key mappings.
 v2.1.0
     * Warnings about having an incompatible Vim and/or Python installation
       are now deferred until the first time you try to use Gundo, instead
