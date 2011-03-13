@@ -432,8 +432,8 @@ endfunction"}}}
 "{{{ Gundo buffer settings
 
 function! s:GundoMapGraph()"{{{
-    exec 'nnoremap <script> <silent>' . g:gundo_map_move_older . " :call <sid>GundoMove(1)<CR>"
-    exec 'nnoremap <script> <silent>' . g:gundo_map_move_newer . " :call <sid>GundoMove(-1)<CR>"
+    exec 'nnoremap <script> <silent> <buffer> ' . g:gundo_map_move_older . " :call <sid>GundoMove(1)<CR>"
+    exec 'nnoremap <script> <silent> <buffer> ' . g:gundo_map_move_newer . " :call <sid>GundoMove(-1)<CR>"
     nnoremap <script> <silent> <buffer> <CR>          :call <sid>GundoRevert()<CR>
     nnoremap <script> <silent> <buffer> o             :call <sid>GundoRevert()<CR>
     nnoremap <script> <silent> <buffer> <down>        :call <sid>GundoMove(1)<CR>
