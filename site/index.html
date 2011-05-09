@@ -11,11 +11,11 @@
         /* <![CDATA[ */
             (function() {
                 var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-                
+
                 s.type = 'text/javascript';
                 s.async = true;
                 s.src = 'http://api.flattr.com/js/0.5.0/load.js?mode=auto';
-                
+
                 t.parentNode.insertBefore(s, t);
             })();
         /* ]]> */
@@ -51,7 +51,7 @@
                    title="gundo by stevelosh, on Flickr"
                 ><img src="http://farm5.static.flickr.com/4113/5093114605_ebc46d6494_m.jpg"
                    width="234" height="240" alt="gundo" /></a>
-               
+
 
                 <p>
                     You know that Vim lets you undo changes like any text editor. What you might
@@ -97,6 +97,7 @@
                             <li><a href="#gundo_help">g:gundo_help</a></li>
                             <li><a href="#gundo_disable">g:gundo_disable</a></li>
                             <li><a href="#gundo_map_move">g:gundo_map_move_[older/newer]</a></li>
+                            <li><a href="#gundo_close_on_revert">g:gundo_close_on_revert</a></li>
                         </ul>
                     </li>
                     <li><a href="#license">License</a></li>
@@ -318,6 +319,13 @@ let g:gundo_right = 1
                     gundo_map_move_older: "j"<br/>
                     gundo_map_move_newer: "k"
                 </p>
+
+                <a name="gundo_close_on_revert"></a>
+                <h2>g:gundo_close_on_revert</h2>
+
+                <p>Set this to 1 to automatically close the Gundo windows when reverting.</p>
+
+                <p>Default: 0 (windows do not automatically close)</p>
             </section>
             <section>
                 <a name="license"></a>
@@ -357,15 +365,23 @@ let g:gundo_right = 1
             <section>
                 <a name="changelog"></a>
                 <h1>Changelog</h1>
-                
+
                 <ol class="changelog">
+                    <li>v2.2.0
+                        <ul>
+                            <li>
+                                Add the <code>g:gundo_close_on_revert</code> setting.
+                            </li>
+                        </ul>
+                    </li>
                     <li>v2.1.1
                         <ul>
                             <li>
                                 Fix a bug with the movement key mappings.
                             </li>
                         </ul>
-                    </li><li>v2.1.0
+                    </li>
+                    <li>v2.1.0
                         <ul>
                             <li>
                                 Warnings about having an incompatible Vim and/or
@@ -414,7 +430,7 @@ let g:gundo_right = 1
             <section>
                 <a name="credits"></a>
                 <h1>Credits</h1>
-                
+
                 <p>
                     The graphing code was all taken from Mercurial, hence the
                     GPLv2+ license.

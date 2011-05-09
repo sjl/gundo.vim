@@ -16,6 +16,7 @@ CONTENTS                                                      *Gundo-contents*
         3.6 gundo_disable ............. |gundo_disable|
         3.7 gundo_map_move_older ...... |gundo_map_move_older|
             gundo_map_move_newer ...... |gundo_map_move_newer|
+        3.8 gundo_close_on_revert ..... |gundo_close_on_revert|
     4. License ........................ |GundoLicense|
     5. Bugs ........................... |GundoBugs|
     6. Contributing ................... |GundoContributing|
@@ -188,6 +189,13 @@ useful if you use a Dvorak keyboard and have changed your movement keys.
 Default: gundo_map_move_older = "j"
          gundo_map_move_newer = "k"
 
+------------------------------------------------------------------------------
+3.8 g:gundo_close_on_revert                            *gundo_close_on_revert*
+
+Set this to 1 to automatically close the Gundo windows when reverting.
+
+Default: 0 (windows do not automatically close)
+
 ==============================================================================
 4. License                                                      *GundoLicense*
 
@@ -211,6 +219,8 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+v2.2.0
+    * Add the g:gundo_close_on_revert setting.
 v2.1.1
     * Fix a bug with the movement key mappings.
 v2.1.0
