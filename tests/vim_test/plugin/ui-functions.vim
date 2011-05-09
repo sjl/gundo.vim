@@ -1,1 +1,1 @@
-/Users/sjl/src/gundo.vim/tests/bundled/lh-vim-lib/plugin/ui-functions.vim
+../../bundled/lh-vim-lib/plugin/ui-functions.vim

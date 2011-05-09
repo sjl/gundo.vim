@@ -1,1 +1,1 @@
-/Users/sjl/src/gundo.vim/tests/bundled/ut/plugin/UT.vim
+../../bundled/ut/plugin/UT.vim

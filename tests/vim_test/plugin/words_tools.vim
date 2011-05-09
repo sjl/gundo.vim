@@ -1,1 +1,1 @@
-/Users/sjl/src/gundo.vim/tests/bundled/lh-vim-lib/plugin/words_tools.vim
+../../bundled/lh-vim-lib/plugin/words_tools.vim

@@ -1,1 +1,1 @@
-/Users/sjl/src/gundo.vim/tests/bundled/lh-vim-lib/macros/menu-map.vim
+../../bundled/lh-vim-lib/macros/menu-map.vim
