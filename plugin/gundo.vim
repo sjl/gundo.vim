@@ -66,6 +66,9 @@ endif"}}}
 if !exists("g:gundo_map_move_newer")"{{{
     let g:gundo_map_move_newer = 'k'
 endif"}}}
+if !exists("g:gundo_close_on_revert")"{{{
+    let g:gundo_close_on_revert = 1
+endif"}}}
 
 "}}}
 
@@ -883,6 +886,9 @@ def GundoRevert():
 
     vim.command('GundoRenderGraph')
     _goto_window_for_buffer(back)
+
+    if int(vim.eval('g:gundo_close_on_revert')):
+        vim.command('GundoToggle')
 
 GundoRevert()
 ENDPYTHON
