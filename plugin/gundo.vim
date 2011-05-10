@@ -67,7 +67,7 @@ if !exists("g:gundo_map_move_newer")"{{{
     let g:gundo_map_move_newer = 'k'
 endif"}}}
 if !exists("g:gundo_close_on_revert")"{{{
-    let g:gundo_close_on_revert = 1
+    let g:gundo_close_on_revert = 0
 endif"}}}
 
 "}}}
