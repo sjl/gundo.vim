@@ -598,11 +598,19 @@ function! s:GundoClose()"{{{
 endfunction"}}}
 
 function! s:GundoOpen()"{{{
+    " Save `splitbelow` value and set it to default to avoid problems with
+    " positioning new windows.
+    let saved_splitbelow = &splitbelow
+    let &splitbelow = 0
+
     call s:GundoOpenPreview()
     exe bufwinnr(g:gundo_target_n) . "wincmd w"
 
     call s:GundoRenderGraph()
     call s:GundoRenderPreview()
+
+    " Restore `splitbelow` value.
+    let &splitbelow = saved_splitbelow
 endfunction"}}}
 
 function! s:GundoToggle()"{{{
