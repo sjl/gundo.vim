@@ -221,6 +221,7 @@ GitHub: http://github.com/sjl/gundo.vim/
 
 v2.2.0
     * Add the g:gundo_close_on_revert setting.
+    * Fix a bug with the splitbelow setting.
 v2.1.1
     * Fix a bug with the movement key mappings.
 v2.1.0
