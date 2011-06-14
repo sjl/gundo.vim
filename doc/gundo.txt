@@ -1,6 +1,6 @@
 *gundo.txt*   Graph your undo tree so you can actually USE it.
 
-Making's Vim's undo tree usable by humans.
+Making Vim's undo tree usable by humans.
 
 ==============================================================================
 CONTENTS                                                      *Gundo-contents*
