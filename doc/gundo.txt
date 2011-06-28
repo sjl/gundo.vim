@@ -219,6 +219,8 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+v2.2.2
+    * More performance improvements.
 v2.2.1
     * Refactoring and performance improvements.
 v2.2.0
