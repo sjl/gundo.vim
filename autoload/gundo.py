@@ -14,7 +14,8 @@ import sys
 import time
 import vim
 
-# Mercurial's graphlog code
+
+# Mercurial's graphlog code --------------------------------------------------------
 def asciiedges(seen, rev, parents):
     """adds edge info to changelog DAG walk suitable for ascii()"""
     if rev not in seen:
@@ -193,8 +194,8 @@ def generate(dag, edgefn, current):
         ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents))
     return buf.b
 
-# Mercurial age function
 
+# Mercurial age function -----------------------------------------------------------
 agescales = [("year", 3600 * 24 * 365),
              ("month", 3600 * 24 * 30),
              ("week", 3600 * 24 * 7),
@@ -227,8 +228,8 @@ def age(ts):
         if n >= 2 or s == 1:
             return '%s ago' % fmt(t, n)
 
-# Python Vim utility functions
 
+# Python Vim utility functions -----------------------------------------------------
 normal = lambda s: vim.command('normal %s' % s)
 
 MISSING_BUFFER = "Cannot find Gundo's target buffer (%s)"
@@ -278,8 +279,8 @@ INLINE_HELP = '''\
 
 '''
 
-# Python undo tree data structures and functions
 
+# Python undo tree data structures and functions -----------------------------------
 class Buffer(object):
     def __init__(self):
         self.b = ''
@@ -325,10 +326,10 @@ def changenr(nodes):
         current = int(vim.eval('changenr()'))
     return current
 
-# Gundo rendering
+
+# Gundo rendering ------------------------------------------------------------------
 
 # Rendering utility functions
-
 def _fmt_time(t):
     return time.strftime('%Y-%m-%d %I:%M:%S %p', time.localtime(float(t)))
 
@@ -499,8 +500,8 @@ def GundoRenderChangePreview():
 
     _goto_window_for_buffer_name('__Gundo__')
 
-# Gundo undo/redo
 
+# Gundo undo/redo
 def GundoRevert():
     if not _check_sanity():
         return
