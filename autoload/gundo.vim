@@ -19,7 +19,9 @@ if v:version < '703'"{{{
     finish
 endif"}}}
 
-if has('python')"{{{
+if has('python3')"{{{
+    let s:has_supported_python = 2
+elseif has('python')
     let s:has_supported_python = 1
 else
     let s:has_supported_python = 0
@@ -263,8 +265,13 @@ endfunction"}}}
 
 function! s:GundoOpen()"{{{
     if !exists('g:gundo_py_loaded')
-        exe 'pyfile ' . s:plugin_path . '/gundo.py'
-        python initPythonModule()
+	if s:has_supported_python == 2
+	  exe 'py3file ' . s:plugin_path . '/gundo.py'
+	  python3 initPythonModule()
+	else
+	  exe 'pyfile ' . s:plugin_path . '/gundo.py'
+	  python initPythonModule()
+	endif
 
         if !s:has_supported_python
             function! s:GundoDidNotLoad()
@@ -363,15 +370,27 @@ endfunction"}}}
 "{{{ Gundo rendering
 
 function! s:GundoRenderGraph()"{{{
-    python GundoRenderGraph()
+    if s:has_supported_python == 2
+	python3 GundoRenderGraph()
+    else
+	python GundoRenderGraph()
+    endif
 endfunction"}}}
 
 function! s:GundoRenderPreview()"{{{
-    python GundoRenderPreview()
+    if s:has_supported_python == 2
+	python3 GundoRenderPreview()
+    else
+	python GundoRenderPreview()
+    endif
 endfunction"}}}
 
 function! s:GundoRenderChangePreview()"{{{
-    python GundoRenderChangePreview()
+    if s:has_supported_python == 2
+	python3 GundoRenderChangePreview()
+    else
+	python GundoRenderChangePreview()
+    endif
 endfunction"}}}
 
 "}}}
@@ -379,11 +398,19 @@ endfunction"}}}
 "{{{ Gundo undo/redo
 
 function! s:GundoRevert()"{{{
-    python GundoRevert()
+    if s:has_supported_python == 2
+	python3 GundoRevert()
+    else
+	python GundoRevert()
+    endif
 endfunction"}}}
 
 function! s:GundoPlayTo()"{{{
-    python GundoPlayTo()
+    if s:has_supported_python == 2
+	python3 GundoPlayTo()
+    else
+	python GundoPlayTo()
+    endif
 endfunction"}}}
 
 "}}}
