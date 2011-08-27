@@ -553,7 +553,10 @@ def GundoPlayTo():
             return None
         nodes.append(current)
 
-        return reversed(nodes) if rev else nodes
+        if rev:
+            return reversed(nodes)
+        else:
+            return nodes
 
     branch = _walk_branch(start, end)
 
