@@ -47,12 +47,11 @@ if !exists("g:gundo_prefer_python3")"{{{
     let g:gundo_prefer_python3 = 0
 endif"}}}
 
-if has('python')"{{{
-    let s:has_supported_python = 1
-elseif g:gundo_prefer_python3 && has('python3')
+let s:has_supported_python = 0
+if g:gundo_prefer_python3 && has('python3')"{{{
     let s:has_supported_python = 2
-else
-    let s:has_supported_python = 0
+elseif has('python')"
+    let s:has_supported_python = 1
 endif
 
 if !s:has_supported_python
