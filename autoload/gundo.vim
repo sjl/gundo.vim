@@ -310,6 +310,14 @@ function! s:GundoToggle()"{{{
     endif
 endfunction"}}}
 
+function! s:GundoShow()"{{{
+	call s:GundoOpen()
+endfunction"}}}
+
+function! s:GundoHide()"{{{
+	call s:GundoClose()
+endfunction"}}}
+
 "}}}
 
 "{{{ Gundo mouse handling
