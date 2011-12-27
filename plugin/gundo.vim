@@ -18,5 +18,4 @@ let loaded_gundo = 1"}}}
 
 "{{{ Misc
 command! -nargs=0 GundoToggle call gundo#GundoToggle()
-command! -nargs=0 GundoRenderGraph call gundo#GundoRenderGraph()
 "}}}
