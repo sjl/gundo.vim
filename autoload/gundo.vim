@@ -216,6 +216,9 @@ function! s:GundoOpenGraph()"{{{
             call s:GundoResizeBuffers(winnr())
         endif
     endif
+    if exists("g:gundo_tree_statusline")
+        let &l:statusline = g:gundo_tree_statusline
+    endif
 endfunction"}}}
 
 function! s:GundoOpenPreview()"{{{
@@ -250,6 +253,9 @@ function! s:GundoOpenPreview()"{{{
             endif
         endif
     endif
+    if exists("g:gundo_preview_statusline")
+        let &l:statusline = g:gundo_preview_statusline
+    endif
 endfunction"}}}
 
 function! s:GundoClose()"{{{
@@ -266,13 +272,13 @@ endfunction"}}}
 
 function! s:GundoOpen()"{{{
     if !exists('g:gundo_py_loaded')
-	if s:has_supported_python == 2 && g:gundo_prefer_python3
-	  exe 'py3file ' . s:plugin_path . '/gundo.py'
-	  python3 initPythonModule()
-	else
-	  exe 'pyfile ' . s:plugin_path . '/gundo.py'
-	  python initPythonModule()
-	endif
+        if s:has_supported_python == 2 && g:gundo_prefer_python3
+            exe 'py3file ' . s:plugin_path . '/gundo.py'
+            python3 initPythonModule()
+        else
+            exe 'pyfile ' . s:plugin_path . '/gundo.py'
+            python initPythonModule()
+        endif
 
         if !s:has_supported_python
             function! s:GundoDidNotLoad()
@@ -312,11 +318,11 @@ function! s:GundoToggle()"{{{
 endfunction"}}}
 
 function! s:GundoShow()"{{{
-	call s:GundoOpen()
+    call s:GundoOpen()
 endfunction"}}}
 
 function! s:GundoHide()"{{{
-	call s:GundoClose()
+    call s:GundoClose()
 endfunction"}}}
 
 "}}}
@@ -380,25 +386,25 @@ endfunction"}}}
 
 function! s:GundoRenderGraph()"{{{
     if s:has_supported_python == 2 && g:gundo_prefer_python3
-	python3 GundoRenderGraph()
+        python3 GundoRenderGraph()
     else
-	python GundoRenderGraph()
+        python GundoRenderGraph()
     endif
 endfunction"}}}
 
 function! s:GundoRenderPreview()"{{{
     if s:has_supported_python == 2 && g:gundo_prefer_python3
-	python3 GundoRenderPreview()
+        python3 GundoRenderPreview()
     else
-	python GundoRenderPreview()
+        python GundoRenderPreview()
     endif
 endfunction"}}}
 
 function! s:GundoRenderChangePreview()"{{{
     if s:has_supported_python == 2 && g:gundo_prefer_python3
-	python3 GundoRenderChangePreview()
+        python3 GundoRenderChangePreview()
     else
-	python GundoRenderChangePreview()
+        python GundoRenderChangePreview()
     endif
 endfunction"}}}
 
@@ -408,17 +414,17 @@ endfunction"}}}
 
 function! s:GundoRevert()"{{{
     if s:has_supported_python == 2 && g:gundo_prefer_python3
-	python3 GundoRevert()
+        python3 GundoRevert()
     else
-	python GundoRevert()
+        python GundoRevert()
     endif
 endfunction"}}}
 
 function! s:GundoPlayTo()"{{{
     if s:has_supported_python == 2 && g:gundo_prefer_python3
-	python3 GundoPlayTo()
+        python3 GundoPlayTo()
     else
-	python GundoPlayTo()
+        python GundoPlayTo()
     endif
 endfunction"}}}
 
