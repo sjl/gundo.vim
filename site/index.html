@@ -98,6 +98,7 @@
                             <li><a href="#gundo_disable">g:gundo_disable</a></li>
                             <li><a href="#gundo_map_move">g:gundo_map_move_[older/newer]</a></li>
                             <li><a href="#gundo_close_on_revert">g:gundo_close_on_revert</a></li>
+                            <li><a href="#gundo_statusline">g:gundo_[preview/tree]_statusline</a></li>
                         </ul>
                     </li>
                     <li><a href="#license">License</a></li>
@@ -326,6 +327,13 @@ let g:gundo_right = 1
                 <p>Set this to 1 to automatically close the Gundo windows when reverting.</p>
 
                 <p>Default: 0 (windows do not automatically close)</p>
+
+                <a name="gundo_statusline"></a>
+                <h2>g:gundo_[preview/tree]_statusline</h2>
+
+                <p>Set these to a string to display it as the status line for each Gundo window.</p>
+
+                <p>Default: unset (windows use the default statusline)</p>
             </section>
             <section>
                 <a name="license"></a>
@@ -367,6 +375,13 @@ let g:gundo_right = 1
                 <h1>Changelog</h1>
 
                 <ol class="changelog">
+                    <li>v2.3.0
+                        <ul>
+                            <li>
+                                Add statusline configuration.
+                            </li>
+                        </ul>
+                    </li>
                     <li>v2.2.2
                         <ul>
                             <li>

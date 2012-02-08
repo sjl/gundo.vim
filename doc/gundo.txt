@@ -17,6 +17,8 @@ CONTENTS                                                      *Gundo-contents*
         3.7 gundo_map_move_older ...... |gundo_map_move_older|
             gundo_map_move_newer ...... |gundo_map_move_newer|
         3.8 gundo_close_on_revert ..... |gundo_close_on_revert|
+        3.9 gundo_preview_statusline .. |gundo_preview_statusline|
+            gundo_tree_statusline ..... |gundo_tree_statusline|
     4. License ........................ |GundoLicense|
     5. Bugs ........................... |GundoBugs|
     6. Contributing ................... |GundoContributing|
@@ -196,6 +198,14 @@ Set this to 1 to automatically close the Gundo windows when reverting.
 
 Default: 0 (windows do not automatically close)
 
+------------------------------------------------------------------------------
+3.9 g:gundo_preview_statusline                      *gundo_preview_statusline*
+    g:gundo_tree_statusline                            *gundo_tree_statusline*
+
+Set these to a string to display it as the status line for each Gundo window.
+
+Default: unset (windows use the default statusline)
+
 ==============================================================================
 4. License                                                      *GundoLicense*
 
@@ -219,6 +229,8 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+v2.3.0
+    * Add statusline configuration.
 v2.2.2
     * More performance improvements.
 v2.2.1
