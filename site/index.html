@@ -99,6 +99,7 @@
                             <li><a href="#gundo_map_move">g:gundo_map_move_[older/newer]</a></li>
                             <li><a href="#gundo_close_on_revert">g:gundo_close_on_revert</a></li>
                             <li><a href="#gundo_statusline">g:gundo_[preview/tree]_statusline</a></li>
+                            <li><a href="#gundo_auto_preview">g:gundo_auto_preview</a></li>
                         </ul>
                     </li>
                     <li><a href="#license">License</a></li>
@@ -334,6 +335,14 @@ let g:gundo_right = 1
                 <p>Set these to a string to display it as the status line for each Gundo window.</p>
 
                 <p>Default: unset (windows use the default statusline)</p>
+
+
+                <a name="#gundo_auto_preview"></a>
+                <h2>g:gundo_auto_preview</h2>
+
+                <p>Set this to 1 to rendering diff automatically with cursor move.</p>
+
+                <p>Default: 1 (auto preview diff)</p>
             </section>
             <section>
                 <a name="license"></a>
@@ -375,6 +384,13 @@ let g:gundo_right = 1
                 <h1>Changelog</h1>
 
                 <ol class="changelog">
+                    <li>v2.3.1
+                        <ul>
+                            <li>
+                                Add auto preview option.
+                            </li>
+                        </ul>
+                    </li>
                     <li>v2.3.0
                         <ul>
                             <li>
