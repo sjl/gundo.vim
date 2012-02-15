@@ -5,25 +5,26 @@ Making Vim's undo tree usable by humans.
 ==============================================================================
 CONTENTS                                                      *Gundo-contents*
 
-    1. Intro .......................... |GundoIntro|
-    2. Usage .......................... |GundoUsage|
-    3. Configuration .................. |GundoConfig|
-        3.1 gundo_width ............... |gundo_width|
-        3.2 gundo_preview_height ...... |gundo_preview_height|
-        3.3 gundo_preview_bottom ...... |gundo_preview_bottom|
-        3.4 gundo_right ............... |gundo_right|
-        3.5 gundo_help ................ |gundo_help|
-        3.6 gundo_disable ............. |gundo_disable|
-        3.7 gundo_map_move_older ...... |gundo_map_move_older|
-            gundo_map_move_newer ...... |gundo_map_move_newer|
-        3.8 gundo_close_on_revert ..... |gundo_close_on_revert|
-        3.9 gundo_preview_statusline .. |gundo_preview_statusline|
-            gundo_tree_statusline ..... |gundo_tree_statusline|
-    4. License ........................ |GundoLicense|
-    5. Bugs ........................... |GundoBugs|
-    6. Contributing ................... |GundoContributing|
-    7. Changelog ...................... |GundoChangelog|
-    8. Credits ........................ |GundoCredits|
+    1. Intro ........................... |GundoIntro|
+    2. Usage ........................... |GundoUsage|
+    3. Configuration ................... |GundoConfig|
+        3.1  gundo_width ............... |gundo_width|
+        3.2  gundo_preview_height ...... |gundo_preview_height|
+        3.3  gundo_preview_bottom ...... |gundo_preview_bottom|
+        3.4  gundo_right ............... |gundo_right|
+        3.5  gundo_help ................ |gundo_help|
+        3.6  gundo_disable ............. |gundo_disable|
+        3.7  gundo_map_move_older ...... |gundo_map_move_older|
+             gundo_map_move_newer ...... |gundo_map_move_newer|
+        3.8  gundo_close_on_revert ..... |gundo_close_on_revert|
+        3.9  gundo_preview_statusline .. |gundo_preview_statusline|
+             gundo_tree_statusline ..... |gundo_tree_statusline|
+        3.10 gundo_auto_preview ........ |gundo_auto_preview|
+    4. License ......................... |GundoLicense|
+    5. Bugs ............................ |GundoBugs|
+    6. Contributing .................... |GundoContributing|
+    7. Changelog ....................... |GundoChangelog|
+    8. Credits ......................... |GundoCredits|
 
 ==============================================================================
 1. Intro                                                          *GundoIntro*
@@ -206,6 +207,13 @@ Set these to a string to display it as the status line for each Gundo window.
 
 Default: unset (windows use the default statusline)
 
+------------------------------------------------------------------------------
+3.10 g:gundo_auto_preview                                 *gundo_auto_preview*
+
+Set this to 1 to rendering diff automatically with cursor move.
+
+Default: 1 (auto preview diff)
+
 ==============================================================================
 4. License                                                      *GundoLicense*
 
@@ -228,7 +236,8 @@ GitHub: http://github.com/sjl/gundo.vim/
 
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
-
+v2.3.1
+    * Add auto preview option.
 v2.3.0
     * Add statusline configuration.
 v2.2.2

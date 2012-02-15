@@ -46,6 +46,9 @@ endif"}}}
 if !exists("g:gundo_prefer_python3")"{{{
     let g:gundo_prefer_python3 = 0
 endif"}}}
+if !exists("g:gundo_auto_preview")"{{{
+    let g:gundo_auto_preview = 1
+endif"}}}
 
 let s:has_supported_python = 0
 if g:gundo_prefer_python3 && has('python3')"{{{
@@ -377,7 +380,9 @@ function! s:GundoMove(direction) range"{{{
         call cursor(0, idx2 + 1)
     endif
 
-    call s:GundoRenderPreview()
+    if g:gundo_auto_preview == 1
+        call s:GundoRenderPreview()
+    endif
 endfunction"}}}
 
 "}}}
