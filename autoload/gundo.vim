@@ -114,6 +114,7 @@ function! s:GundoMapGraph()"{{{
     nnoremap <script> <silent> <buffer> gg            gg:call <sid>GundoMove(1)<CR>
     nnoremap <script> <silent> <buffer> P             :call <sid>GundoPlayTo()<CR>
     nnoremap <script> <silent> <buffer> p             :call <sid>GundoRenderChangePreview()<CR>
+    nnoremap <script> <silent> <buffer> r             :call <sid>GundoRenderPreview()<CR>
     nnoremap <script> <silent> <buffer> q             :call <sid>GundoClose()<CR>
     cabbrev  <script> <silent> <buffer> q             call <sid>GundoClose()
     cabbrev  <script> <silent> <buffer> quit          call <sid>GundoClose()
