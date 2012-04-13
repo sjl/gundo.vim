@@ -322,11 +322,17 @@ function! s:GundoToggle()"{{{
 endfunction"}}}
 
 function! s:GundoShow()"{{{
-    call s:GundoOpen()
+    if !s:GundoIsVisible()
+        let g:gundo_target_n = bufnr('')
+        let g:gundo_target_f = @%
+        call s:GundoOpen()
+    endif
 endfunction"}}}
 
 function! s:GundoHide()"{{{
-    call s:GundoClose()
+    if s:GundoIsVisible()
+        call s:GundoClose()
+    endif
 endfunction"}}}
 
 "}}}
@@ -440,6 +446,14 @@ endfunction"}}}
 
 function! gundo#GundoToggle()"{{{
     call s:GundoToggle()
+endfunction"}}}
+
+function! gundo#GundoShow()"{{{
+    call s:GundoShow()
+endfunction"}}}
+
+function! gundo#GundoHide()"{{{
+    call s:GundoHide()
 endfunction"}}}
 
 function! gundo#GundoRenderGraph()"{{{
