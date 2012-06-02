@@ -332,7 +332,11 @@ let g:gundo_right = 1
                 <a name="gundo_statusline"></a>
                 <h2>g:gundo_[preview/tree]_statusline</h2>
 
-                <p>Set these to a string to display it as the status line for each Gundo window.</p>
+                <p>
+                    Set this to 0 to disable automatically rendering preview diffs as you move
+                    through the undo tree (you can still render a specific diff with r).  This can
+                    be useful on large files and undo trees to speed up Gundo.
+                </p>
 
                 <p>Default: unset (windows use the default statusline)</p>
 
