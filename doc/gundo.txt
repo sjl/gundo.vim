@@ -236,9 +236,10 @@ GitHub: http://github.com/sjl/gundo.vim/
 
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
-v2.3.1
+v2.4.0
     * Add auto preview option.
     * Add 'r' mapping to preview current state.
+    * Add public gundo#GundoShow() and gundo#GundoHide() functions.
 v2.3.0
     * Add statusline configuration.
 v2.2.2
