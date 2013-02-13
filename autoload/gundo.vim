@@ -94,7 +94,7 @@ endfunction"}}}
 
 function! s:GundoInlineHelpLength()"{{{
     if g:gundo_help
-        return 6
+        return 10
     else
         return 0
     endif
