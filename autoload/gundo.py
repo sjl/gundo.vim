@@ -300,12 +300,13 @@ def _make_nodes(alts, nodes, parent=None):
     p = parent
 
     for alt in alts:
-        curhead = 'curhead' in alt
-        node = Node(n=alt['seq'], parent=p, time=alt['time'], curhead=curhead)
-        nodes.append(node)
-        if alt.get('alt'):
-            _make_nodes(alt['alt'], nodes, p)
-        p = node
+        if alt:
+            curhead = 'curhead' in alt
+            node = Node(n=alt['seq'], parent=p, time=alt['time'], curhead=curhead)
+            nodes.append(node)
+            if alt.get('alt'):
+                _make_nodes(alt['alt'], nodes, p)
+            p = node
 
 def make_nodes():
     ut = vim.eval('undotree()')
