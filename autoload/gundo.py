@@ -13,6 +13,7 @@ import itertools
 import sys
 import time
 import vim
+import tempfile
 
 
 # Mercurial's graphlog code --------------------------------------------------------
@@ -275,9 +276,13 @@ def _undo_to(n):
 
 INLINE_HELP = '''\
 " Gundo for %s (%d)
-" j/k  - move between undo states
-" p    - preview diff of selected and current states
-" <cr> - revert to selected state
+" j/k  - Move between undo states.
+" P    - Play current state to selected undo.
+" d    - Vert diffpatch of selected undo and current state.
+" p    - Diff of selected undo and current state.
+" r    - Diff of selected undo and prior undo.
+" q    - Quit!
+" <cr> - Revert to selected state.
 
 '''
 
@@ -478,9 +483,43 @@ def GundoRenderPreview():
 
     _goto_window_for_buffer_name('__Gundo__')
 
+def GundoRenderPatchdiff():
+    """ Call GundoRenderChangePreview and display a vert diffpatch with the
+    current file. """
+    if GundoRenderChangePreview():
+        # if there are no lines, do nothing (show a warning).
+        _goto_window_for_buffer_name('__Gundo_Preview__')
+        if vim.current.buffer[:] == ['']:
+            # restore the cursor position before exiting.
+            _goto_window_for_buffer_name('__Gundo__')
+            vim.command('unsilent echo "No difference between current file and undo number!"')
+            return False
+
+        # quit out of gundo main screen
+        _goto_window_for_buffer_name('__Gundo__')
+        vim.command('quit')
+
+        # save the __Gundo_Preview__ buffer to a temp file.
+        _goto_window_for_buffer_name('__Gundo_Preview__')
+        (handle,filename) = tempfile.mkstemp()
+        vim.command('silent! w %s' % (filename))
+        # exit the __Gundo_Preview__ window
+        vim.command('quit')
+        # diff the temp file
+        vim.command('silent! vert diffpatch %s' % (filename))
+
+        # TODO set the buftype to temp or nonwritable or...
+        # move out of the patch file and into the original file.
+        #vim.command('normal il')
+        return True
+    return False
+
 def GundoRenderChangePreview():
+    """ Render the selected undo level with the current file.
+    Return True on success, False on failure. """
+
     if not _check_sanity():
-        return
+        return False
 
     target_state = vim.eval('s:GundoGetTargetState()')
 
@@ -488,7 +527,7 @@ def GundoRenderChangePreview():
     # a buffer with no changes yet.
     if target_state == None:
         _goto_window_for_buffer_name('__Gundo__')
-        return
+        return False
     else:
         target_state = int(target_state)
 
@@ -504,6 +543,8 @@ def GundoRenderChangePreview():
     _output_preview_text(_generate_change_preview_diff(current, node_before, node_after))
 
     _goto_window_for_buffer_name('__Gundo__')
+
+    return True
 
 
 # Gundo undo/redo
