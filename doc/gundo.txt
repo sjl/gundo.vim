@@ -71,7 +71,7 @@ look something like this: >
     | | |                               |                                    |
     | o |  [3] 4 hours ago              |                                    |
     | | |                               |                                    |
-    | o |  [2] 4 hours ago              |                                    |
+    | w |  [2] 4 hours ago              |                                    |
     | |/                                |                                    |
     | o  [1] 4 hours ago                |                                    |
     | |                                 |                                    |
@@ -87,8 +87,9 @@ look something like this: >
     +-----------------------------------+------------------------------------+
       Preview pane
 
-Your current position in the undo tree is marked with an '@' character. Other
-nodes are marked with an 'o' character.
+Your current position in the undo tree is marked with an '@' character. Undo
+positions that were saved to disk are marked with a 'w'. Other nodes are marked
+with an 'o' character.
 
 When you toggle open the graph Gundo will put your cursor on your current
 position in the tree. You can move up and down the graph with the j and
