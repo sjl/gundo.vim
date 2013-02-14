@@ -460,10 +460,33 @@ function! gundo#GundoRenderGraph()"{{{
     call s:GundoRenderGraph()
 endfunction"}}}
 
+" automatically reload Gundo buffer if open
+function! s:GundoRefresh()"{{{
+  " abort when there were no changes
+  if b:gundoChangedtick == b:changedtick | return | endif
+  let b:gundoChangedtick = b:changedtick
+
+  let gundoWin    = bufwinnr('__Gundo__')
+  let gundoPreWin = bufwinnr('__Gundo_Preview__')
+  let currentWin  = bufwinnr('%')
+
+  " abort if Gundo is closed or is current window
+  if (gundoWin == -1) || (gundoPreWin == -1) || (gundoWin == currentWin) || (gundoPreWin == currentWin)
+    return
+  endif
+
+  :GundoRenderGraph
+
+  " switch back to previous window
+  execute currentWin . 'wincmd w'
+endfunction"}}}
+
 augroup GundoAug
     autocmd!
     autocmd BufNewFile __Gundo__ call s:GundoSettingsGraph()
     autocmd BufNewFile __Gundo_Preview__ call s:GundoSettingsPreview()
+    autocmd CursorHold * call s:GundoRefresh()
+    autocmd BufEnter * let b:gundoChangedtick = 0
 augroup END
 
 "}}}
