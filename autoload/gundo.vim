@@ -49,6 +49,9 @@ endif"}}}
 if !exists("g:gundo_auto_preview")"{{{
     let g:gundo_auto_preview = 1
 endif"}}}
+if !exists("g:gundo_verbose_graph")"{{{
+    let g:gundo_verbose_graph = 0
+endif"}}}
 
 let s:has_supported_python = 0
 if g:gundo_prefer_python3 && has('python3')"{{{
@@ -361,11 +364,22 @@ function! s:GundoMove(direction) range"{{{
     else
         let move_count = v:count1
     endif
-    let distance = 2 * move_count
+    if g:gundo_verbose_graph
+      let distance = 2 * move_count
 
-    " If we're in between two nodes we move by one less to get back on track.
-    if stridx(start_line, '[') == -1
-        let distance = distance - 1
+      " If we're in between two nodes we move by one less to get back on track.
+      if stridx(start_line, '[') == -1
+          let distance = distance - 1
+      endif
+    else
+      let distance = move_count
+      let nextline = getline(line('.')+distance*a:direction)
+      let idx1 = stridx(nextline, '@')
+      let idx2 = stridx(nextline, 'o')
+      let idx3 = stridx(nextline, 'w')
+      if (idx1+idx2+idx3) == -3
+        let distance = distance + move_count
+      endif
     endif
 
     let target_n = line('.') + (distance * a:direction)
@@ -380,12 +394,16 @@ function! s:GundoMove(direction) range"{{{
     let line = getline('.')
 
     " Move to the node, whether it's an @ or an o
+    " TODO this isn't working for 'w' lines
     let idx1 = stridx(line, '@')
     let idx2 = stridx(line, 'o')
+    let idx3 = stridx(line, 'w')
     if idx1 != -1
         call cursor(0, idx1 + 1)
-    else
+    elseif idx2 != -1
         call cursor(0, idx2 + 1)
+    else
+        call cursor(0, idx3 + 1)
     endif
 
     if g:gundo_auto_preview == 1
@@ -472,6 +490,12 @@ endfunction"}}}
 " automatically reload Gundo buffer if open
 function! s:GundoRefresh()"{{{
   " abort when there were no changes
+
+  " abort if our b:gundoChangedtick doens't exist
+  if !exists('b:gundoChangedtick')
+    return
+  endif
+
   if b:gundoChangedtick == b:changedtick | return | endif
   let b:gundoChangedtick = b:changedtick
 

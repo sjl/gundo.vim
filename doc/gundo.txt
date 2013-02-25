@@ -20,6 +20,7 @@ CONTENTS                                                      *Gundo-contents*
         3.9  gundo_preview_statusline .. |gundo_preview_statusline|
              gundo_tree_statusline ..... |gundo_tree_statusline|
         3.10 gundo_auto_preview ........ |gundo_auto_preview|
+        3.11 gundo_verbose_graph ....... |gundo_verbose_graph|
     4. License ......................... |GundoLicense|
     5. Bugs ............................ |GundoBugs|
     6. Contributing .................... |GundoContributing|
@@ -216,6 +217,15 @@ through the undo tree (you can still render a specific diff with r).  This can
 be useful on large files and undo trees to speed up Gundo.
 
 Default: 1 (automatically preview diffs)
+
+------------------------------------------------------------------------------
+3.11 g:gundo_verbose_graph                               *gundo_verbose_graph*
+
+Set this to 0 to create shorter graphs: the 'o' characters will only be used
+when multiple branches exist, and extra lines of '|' are suppressed making for
+a graph half as long.
+
+Default: 1 (verbose graphs)
 
 ==============================================================================
 4. License                                                      *GundoLicense*

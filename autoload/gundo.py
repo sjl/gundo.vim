@@ -78,7 +78,7 @@ def fix_long_right_edges(edges):
         if end > start:
             edges[i] = (start, end + 1)
 
-def ascii(buf, state, type, char, text, coldata):
+def ascii(buf, state, type, char, text, coldata, verbose):
     """prints an ASCII graph of the DAG
 
     takes the following arguments (one call per node in the graph):
@@ -96,6 +96,8 @@ def ascii(buf, state, type, char, text, coldata):
         in the next revision and the number of columns (ongoing edges)
         in the current revision. That is: -1 means one column removed;
         0 means no columns added or removed; 1 means one column added.
+      - Verbosity: if enabled then the graph prints an extra '|' 
+        between each line of information.
     """
 
     idx, edges, ncols, coldiff = coldata
@@ -117,7 +119,8 @@ def ascii(buf, state, type, char, text, coldata):
     #     o | |          |  / /
     #                    o | |
     add_padding_line = (len(text) > 2 and coldiff == -1 and
-                        [x for (x, y) in edges if x + 1 < y])
+                        [x for (x, y) in edges if x + 1 < y] and
+                        verbose)
 
     # fix_nodeline_tail says whether to rewrite
     #
@@ -160,10 +163,14 @@ def ascii(buf, state, type, char, text, coldata):
         lines.append(get_padding_line(idx, ncols, edges))
     lines.append(shift_interline)
 
+    # TODO NEED TO store where these extra append('') sections are so that we
+    # can navigate down and up correctly.
+
     # make sure that there are as many graph lines as there are
     # log strings
-    while len(text) < len(lines):
-        text.append("")
+    if any("/" in s for s in lines) or verbose:
+        while len(text) < len(lines):
+            text.append('')
     if len(lines) < len(text):
         extra_interline = ["|", " "] * (ncols + coldiff)
         while len(lines) < len(text):
@@ -179,7 +186,7 @@ def ascii(buf, state, type, char, text, coldata):
     state[0] = coldiff
     state[1] = idx
 
-def generate(dag, edgefn, current):
+def generate(dag, edgefn, current, verbose):
     seen, state = [], [0, 0]
     buf = Buffer()
     for node, parents in list(dag):
@@ -194,7 +201,7 @@ def generate(dag, edgefn, current):
             char = 'w'
         else:
             char = 'o'
-        ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents))
+        ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents), verbose)
     return buf.b
 
 
@@ -430,7 +437,8 @@ def GundoRenderGraph():
     dag = sorted(nodes, key=lambda n: int(n.n), reverse=True)
     current = changenr(nodes)
 
-    result = generate(walk_nodes(dag), asciiedges, current).rstrip().splitlines()
+    verbose = vim.eval('g:gundo_verbose_graph') == 1
+    result = generate(walk_nodes(dag), asciiedges, current, verbose).rstrip().splitlines()
     result = [' ' + l for l in result]
 
     target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
