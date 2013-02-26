@@ -377,6 +377,7 @@ function! s:GundoMove(direction) range"{{{
       let idx1 = stridx(nextline, '@')
       let idx2 = stridx(nextline, 'o')
       let idx3 = stridx(nextline, 'w')
+      " if the next line is not a revision - then go down one more.
       if (idx1+idx2+idx3) == -3
         let distance = distance + move_count
       endif
@@ -393,14 +394,18 @@ function! s:GundoMove(direction) range"{{{
 
     let line = getline('.')
 
-    " Move to the node, whether it's an @ or an o
-    " TODO this isn't working for 'w' lines
+    " Move to the node, whether it's an @, o, or w
     let idx1 = stridx(line, '@')
     let idx2 = stridx(line, 'o')
     let idx3 = stridx(line, 'w')
-    if idx1 != -1
+    let idxs = []
+    if idx1 != -1 | let idxs += [idx1] | endif
+    if idx2 != -1 | let idxs += [idx2] | endif
+    if idx3 != -1 | let idxs += [idx3] | endif
+    let minidx = min(idxs)
+    if idx1 == minidx
         call cursor(0, idx1 + 1)
-    elseif idx2 != -1
+    elseif idx2 == minidx
         call cursor(0, idx2 + 1)
     else
         call cursor(0, idx3 + 1)
