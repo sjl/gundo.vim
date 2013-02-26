@@ -49,6 +49,9 @@ endif"}}}
 if !exists("g:gundo_auto_preview")"{{{
     let g:gundo_auto_preview = 1
 endif"}}}
+if !exists("g:gundo_verbose_graph")"{{{
+    let g:gundo_verbose_graph = 0
+endif"}}}
 
 let s:has_supported_python = 0
 if g:gundo_prefer_python3 && has('python3')"{{{
@@ -94,7 +97,7 @@ endfunction"}}}
 
 function! s:GundoInlineHelpLength()"{{{
     if g:gundo_help
-        return 6
+        return 10
     else
         return 0
     endif
@@ -114,6 +117,7 @@ function! s:GundoMapGraph()"{{{
     nnoremap <script> <silent> <buffer> gg            gg:call <sid>GundoMove(1)<CR>
     nnoremap <script> <silent> <buffer> P             :call <sid>GundoPlayTo()<CR>
     nnoremap <script> <silent> <buffer> p             :call <sid>GundoRenderChangePreview()<CR>
+    nnoremap <script> <silent> <buffer> d             :call <sid>GundoRenderPatchdiff()<CR>
     nnoremap <script> <silent> <buffer> r             :call <sid>GundoRenderPreview()<CR>
     nnoremap <script> <silent> <buffer> q             :call <sid>GundoClose()<CR>
     cabbrev  <script> <silent> <buffer> q             call <sid>GundoClose()
@@ -360,11 +364,23 @@ function! s:GundoMove(direction) range"{{{
     else
         let move_count = v:count1
     endif
-    let distance = 2 * move_count
+    if g:gundo_verbose_graph
+      let distance = 2 * move_count
 
-    " If we're in between two nodes we move by one less to get back on track.
-    if stridx(start_line, '[') == -1
-        let distance = distance - 1
+      " If we're in between two nodes we move by one less to get back on track.
+      if stridx(start_line, '[') == -1
+          let distance = distance - 1
+      endif
+    else
+      let distance = move_count
+      let nextline = getline(line('.')+distance*a:direction)
+      let idx1 = stridx(nextline, '@')
+      let idx2 = stridx(nextline, 'o')
+      let idx3 = stridx(nextline, 'w')
+      " if the next line is not a revision - then go down one more.
+      if (idx1+idx2+idx3) == -3
+        let distance = distance + move_count
+      endif
     endif
 
     let target_n = line('.') + (distance * a:direction)
@@ -378,13 +394,21 @@ function! s:GundoMove(direction) range"{{{
 
     let line = getline('.')
 
-    " Move to the node, whether it's an @ or an o
+    " Move to the node, whether it's an @, o, or w
     let idx1 = stridx(line, '@')
     let idx2 = stridx(line, 'o')
-    if idx1 != -1
+    let idx3 = stridx(line, 'w')
+    let idxs = []
+    if idx1 != -1 | let idxs += [idx1] | endif
+    if idx2 != -1 | let idxs += [idx2] | endif
+    if idx3 != -1 | let idxs += [idx3] | endif
+    let minidx = min(idxs)
+    if idx1 == minidx
         call cursor(0, idx1 + 1)
-    else
+    elseif idx2 == minidx
         call cursor(0, idx2 + 1)
+    else
+        call cursor(0, idx3 + 1)
     endif
 
     if g:gundo_auto_preview == 1
@@ -401,6 +425,14 @@ function! s:GundoRenderGraph()"{{{
         python3 GundoRenderGraph()
     else
         python GundoRenderGraph()
+    endif
+endfunction"}}}
+
+function! s:GundoRenderPatchdiff()"{{{
+    if s:has_supported_python == 2 && g:gundo_prefer_python3
+        python3 GundoRenderPatchdiff()
+    else
+        python GundoRenderPatchdiff()
     endif
 endfunction"}}}
 
@@ -460,10 +492,39 @@ function! gundo#GundoRenderGraph()"{{{
     call s:GundoRenderGraph()
 endfunction"}}}
 
+" automatically reload Gundo buffer if open
+function! s:GundoRefresh()"{{{
+  " abort when there were no changes
+
+  " abort if our b:gundoChangedtick doens't exist
+  if !exists('b:gundoChangedtick')
+    return
+  endif
+
+  if b:gundoChangedtick == b:changedtick | return | endif
+  let b:gundoChangedtick = b:changedtick
+
+  let gundoWin    = bufwinnr('__Gundo__')
+  let gundoPreWin = bufwinnr('__Gundo_Preview__')
+  let currentWin  = bufwinnr('%')
+
+  " abort if Gundo is closed or is current window
+  if (gundoWin == -1) || (gundoPreWin == -1) || (gundoWin == currentWin) || (gundoPreWin == currentWin)
+    return
+  endif
+
+  :GundoRenderGraph
+
+  " switch back to previous window
+  execute currentWin . 'wincmd w'
+endfunction"}}}
+
 augroup GundoAug
     autocmd!
     autocmd BufNewFile __Gundo__ call s:GundoSettingsGraph()
     autocmd BufNewFile __Gundo_Preview__ call s:GundoSettingsPreview()
+    autocmd CursorHold * call s:GundoRefresh()
+    autocmd BufEnter * let b:gundoChangedtick = 0
 augroup END
 
 "}}}

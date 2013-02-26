@@ -13,6 +13,7 @@ import itertools
 import sys
 import time
 import vim
+import tempfile
 
 
 # Mercurial's graphlog code --------------------------------------------------------
@@ -77,7 +78,7 @@ def fix_long_right_edges(edges):
         if end > start:
             edges[i] = (start, end + 1)
 
-def ascii(buf, state, type, char, text, coldata):
+def ascii(buf, state, type, char, text, coldata, verbose):
     """prints an ASCII graph of the DAG
 
     takes the following arguments (one call per node in the graph):
@@ -95,6 +96,8 @@ def ascii(buf, state, type, char, text, coldata):
         in the next revision and the number of columns (ongoing edges)
         in the current revision. That is: -1 means one column removed;
         0 means no columns added or removed; 1 means one column added.
+      - Verbosity: if enabled then the graph prints an extra '|' 
+        between each line of information.
     """
 
     idx, edges, ncols, coldiff = coldata
@@ -116,7 +119,8 @@ def ascii(buf, state, type, char, text, coldata):
     #     o | |          |  / /
     #                    o | |
     add_padding_line = (len(text) > 2 and coldiff == -1 and
-                        [x for (x, y) in edges if x + 1 < y])
+                        [x for (x, y) in edges if x + 1 < y] and
+                        verbose)
 
     # fix_nodeline_tail says whether to rewrite
     #
@@ -159,10 +163,14 @@ def ascii(buf, state, type, char, text, coldata):
         lines.append(get_padding_line(idx, ncols, edges))
     lines.append(shift_interline)
 
+    # TODO NEED TO store where these extra append('') sections are so that we
+    # can navigate down and up correctly.
+
     # make sure that there are as many graph lines as there are
     # log strings
-    while len(text) < len(lines):
-        text.append("")
+    if any("/" in s for s in lines) or verbose:
+        while len(text) < len(lines):
+            text.append('')
     if len(lines) < len(text):
         extra_interline = ["|", " "] * (ncols + coldiff)
         while len(lines) < len(text):
@@ -178,7 +186,7 @@ def ascii(buf, state, type, char, text, coldata):
     state[0] = coldiff
     state[1] = idx
 
-def generate(dag, edgefn, current):
+def generate(dag, edgefn, current, verbose):
     seen, state = [], [0, 0]
     buf = Buffer()
     for node, parents in list(dag):
@@ -189,9 +197,11 @@ def generate(dag, edgefn, current):
         line = '[%s] %s' % (node.n, age_label)
         if node.n == current:
             char = '@'
+        elif node.saved:
+            char = 'w'
         else:
             char = 'o'
-        ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents))
+        ascii(buf, state, 'C', char, [line], edgefn(seen, node, parents), verbose)
     return buf.b
 
 
@@ -273,9 +283,13 @@ def _undo_to(n):
 
 INLINE_HELP = '''\
 " Gundo for %s (%d)
-" j/k  - move between undo states
-" p    - preview diff of selected and current states
-" <cr> - revert to selected state
+" j/k  - Move between undo states.
+" P    - Play current state to selected undo.
+" d    - Vert diffpatch of selected undo and current state.
+" p    - Diff of selected undo and current state.
+" r    - Diff of selected undo and prior undo.
+" q    - Quit!
+" <cr> - Revert to selected state.
 
 '''
 
@@ -289,29 +303,32 @@ class Buffer(object):
         self.b += s
 
 class Node(object):
-    def __init__(self, n, parent, time, curhead):
+    def __init__(self, n, parent, time, curhead, saved):
         self.n = int(n)
         self.parent = parent
         self.children = []
         self.curhead = curhead
+        self.saved = saved
         self.time = time
 
 def _make_nodes(alts, nodes, parent=None):
     p = parent
 
     for alt in alts:
-        curhead = 'curhead' in alt
-        node = Node(n=alt['seq'], parent=p, time=alt['time'], curhead=curhead)
-        nodes.append(node)
-        if alt.get('alt'):
-            _make_nodes(alt['alt'], nodes, p)
-        p = node
+        if alt:
+            curhead = 'curhead' in alt
+            saved = 'save' in alt
+            node = Node(n=alt['seq'], parent=p, time=alt['time'], curhead=curhead, saved=saved)
+            nodes.append(node)
+            if alt.get('alt'):
+                _make_nodes(alt['alt'], nodes, p)
+            p = node
 
 def make_nodes():
     ut = vim.eval('undotree()')
     entries = ut['entries']
 
-    root = Node(0, None, False, 0)
+    root = Node(0, None, False, 0, 0)
     nodes = []
     _make_nodes(entries, nodes, root)
     nodes.append(root)
@@ -420,7 +437,8 @@ def GundoRenderGraph():
     dag = sorted(nodes, key=lambda n: int(n.n), reverse=True)
     current = changenr(nodes)
 
-    result = generate(walk_nodes(dag), asciiedges, current).rstrip().splitlines()
+    verbose = vim.eval('g:gundo_verbose_graph') == 1
+    result = generate(walk_nodes(dag), asciiedges, current, verbose).rstrip().splitlines()
     result = [' ' + l for l in result]
 
     target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
@@ -473,9 +491,43 @@ def GundoRenderPreview():
 
     _goto_window_for_buffer_name('__Gundo__')
 
+def GundoRenderPatchdiff():
+    """ Call GundoRenderChangePreview and display a vert diffpatch with the
+    current file. """
+    if GundoRenderChangePreview():
+        # if there are no lines, do nothing (show a warning).
+        _goto_window_for_buffer_name('__Gundo_Preview__')
+        if vim.current.buffer[:] == ['']:
+            # restore the cursor position before exiting.
+            _goto_window_for_buffer_name('__Gundo__')
+            vim.command('unsilent echo "No difference between current file and undo number!"')
+            return False
+
+        # quit out of gundo main screen
+        _goto_window_for_buffer_name('__Gundo__')
+        vim.command('quit')
+
+        # save the __Gundo_Preview__ buffer to a temp file.
+        _goto_window_for_buffer_name('__Gundo_Preview__')
+        (handle,filename) = tempfile.mkstemp()
+        vim.command('silent! w %s' % (filename))
+        # exit the __Gundo_Preview__ window
+        vim.command('quit')
+        # diff the temp file
+        vim.command('silent! vert diffpatch %s' % (filename))
+
+        # TODO set the buftype to temp or nonwritable or...
+        # move out of the patch file and into the original file.
+        #vim.command('normal il')
+        return True
+    return False
+
 def GundoRenderChangePreview():
+    """ Render the selected undo level with the current file.
+    Return True on success, False on failure. """
+
     if not _check_sanity():
-        return
+        return False
 
     target_state = vim.eval('s:GundoGetTargetState()')
 
@@ -483,7 +535,7 @@ def GundoRenderChangePreview():
     # a buffer with no changes yet.
     if target_state == None:
         _goto_window_for_buffer_name('__Gundo__')
-        return
+        return False
     else:
         target_state = int(target_state)
 
@@ -499,6 +551,8 @@ def GundoRenderChangePreview():
     _output_preview_text(_generate_change_preview_diff(current, node_before, node_after))
 
     _goto_window_for_buffer_name('__Gundo__')
+
+    return True
 
 
 # Gundo undo/redo

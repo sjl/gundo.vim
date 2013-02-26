@@ -10,7 +10,7 @@
 
 
 "{{{ Init
-if !exists('g:gundo_debug') && (exists('g:gundo_disable') || exists('loaded_gundo') || &cp)"{{{
+if !exists('g:gundo_debug') && (exists('g:gundo_disable') && g:gundo_disable == 1 || exists('loaded_gundo') || &cp)"{{{
     finish
 endif
 let loaded_gundo = 1"}}}
