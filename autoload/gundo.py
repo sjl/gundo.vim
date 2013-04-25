@@ -524,6 +524,7 @@ def GundoPlayTo():
 
     target_n = int(vim.eval('s:GundoGetTargetState()'))
     back = int(vim.eval('g:gundo_target_n'))
+    delay = int(vim.eval('g:gundo_playback_delay'))
 
     vim.command('echo "%s"' % back)
 
@@ -570,7 +571,7 @@ def GundoPlayTo():
         normal('zz')
         _goto_window_for_buffer(back)
         vim.command('redraw')
-        vim.command('sleep 60m')
+        vim.command('sleep %dm' % delay)
 
 def initPythonModule():
     if sys.version_info[:2] < (2, 4):

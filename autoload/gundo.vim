@@ -49,6 +49,9 @@ endif"}}}
 if !exists("g:gundo_auto_preview")"{{{
     let g:gundo_auto_preview = 1
 endif"}}}
+if !exists("g:gundo_playback_delay")"{{{
+    let g:gundo_playback_delay = 60
+endif"}}}
 
 let s:has_supported_python = 0
 if g:gundo_prefer_python3 && has('python3')"{{{
