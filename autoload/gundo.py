@@ -273,7 +273,7 @@ def _undo_to(n):
 
 INLINE_HELP = '''\
 " Gundo for %s (%d)
-" j/k  - move between undo states
+" %s/%s  - move between undo states
 " p    - preview diff of selected and current states
 " <cr> - revert to selected state
 
@@ -424,9 +424,11 @@ def GundoRenderGraph():
     result = [' ' + l for l in result]
 
     target = (vim.eval('g:gundo_target_f'), int(vim.eval('g:gundo_target_n')))
+    mappings = (vim.eval('g:gundo_map_move_older'),
+                vim.eval('g:gundo_map_move_newer'))
 
     if int(vim.eval('g:gundo_help')):
-        header = (INLINE_HELP % target).splitlines()
+        header = (INLINE_HELP % (target + mappings)).splitlines()
     else:
         header = []
 
