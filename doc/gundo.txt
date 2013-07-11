@@ -251,6 +251,7 @@ GitHub: http://github.com/sjl/gundo.vim/
 
 v2.4.1
     * Fix the help window to take custom mappings into account.
+    * Add g:gundo_playback_delay option.
 v2.4.0
     * Add auto preview option.
     * Add 'r' mapping to preview current state.
