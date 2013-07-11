@@ -515,7 +515,8 @@ def GundoRevert():
     _undo_to(target_n)
 
     vim.command('GundoRenderGraph')
-    _goto_window_for_buffer(back)
+    if int(vim.eval('g:gundo_focus_main_buffer')):
+        _goto_window_for_buffer(back)
 
     if int(vim.eval('g:gundo_close_on_revert')):
         vim.command('GundoToggle')
