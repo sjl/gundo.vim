@@ -239,6 +239,8 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+v2.4.1
+    * Fix the help window to take custom mappings into account.
 v2.4.0
     * Add auto preview option.
     * Add 'r' mapping to preview current state.
