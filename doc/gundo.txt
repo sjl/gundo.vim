@@ -21,6 +21,7 @@ CONTENTS                                                      *Gundo-contents*
              gundo_tree_statusline ..... |gundo_tree_statusline|
         3.10 gundo_auto_preview ........ |gundo_auto_preview|
         3.11 gundo_playback_delay ...... |gundo_playback_delay|
+        3.12 gundo_return_on_revert .... |gundo_return_on_revert|
     4. License ......................... |GundoLicense|
     5. Bugs ............................ |GundoBugs|
     6. Contributing .................... |GundoContributing|
@@ -225,6 +226,13 @@ mode. Set this to a higher number for a slower playback or to a lower number
 for a faster playback.
 
 Default: 60
+
+------------------------------------------------------------------------------
+3.12 g:gundo_return_on_revert                         *gundo_return_on_revert*
+
+Set this to 0 to keep focus in the Gundo window after a revert.
+
+Default: 1
 
 ==============================================================================
 4. License                                                      *GundoLicense*
