@@ -53,7 +53,7 @@ if !exists("g:gundo_playback_delay")"{{{
     let g:gundo_playback_delay = 60
 endif"}}}
 if !exists("g:gundo_return_on_revert")"{{{
-    let g:gundo_return_to_window_on_revert = 1
+    let g:gundo_return_on_revert = 1
 endif"}}}
 
 let s:has_supported_python = 0
