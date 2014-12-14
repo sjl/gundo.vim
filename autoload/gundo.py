@@ -336,7 +336,7 @@ def _fmt_time(t):
 def _output_preview_text(lines):
     _goto_window_for_buffer_name('__Gundo_Preview__')
     vim.command('setlocal modifiable')
-    vim.current.buffer[:] = lines
+    vim.current.buffer[:] = [line.rstrip('\n') for line in lines]
     vim.command('setlocal nomodifiable')
 
 def _generate_preview_diff(current, node_before, node_after):
