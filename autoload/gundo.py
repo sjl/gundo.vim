@@ -361,7 +361,7 @@ def _generate_preview_diff(current, node_before, node_after):
 
         before_name = 'Original'
         before_time = ''
-        after_name = node_after.n
+        after_name = str(node_after.n)
         after_time = _fmt_time(node_after.time)
     else:
         _undo_to(node_before.n)
@@ -370,9 +370,9 @@ def _generate_preview_diff(current, node_before, node_after):
         _undo_to(node_after.n)
         after_lines = vim.current.buffer[:]
 
-        before_name = node_before.n
+        before_name = str(node_before.n)
         before_time = _fmt_time(node_before.time)
-        after_name = node_after.n
+        after_name = str(node_after.n)
         after_time = _fmt_time(node_after.time)
 
     _undo_to(current)
@@ -390,9 +390,9 @@ def _generate_change_preview_diff(current, node_before, node_after):
     _undo_to(node_after.n)
     after_lines = vim.current.buffer[:]
 
-    before_name = node_before.n or 'Original'
+    before_name = str(node_before.n or 'Original')
     before_time = node_before.time and _fmt_time(node_before.time) or ''
-    after_name = node_after.n or 'Original'
+    after_name = str(node_after.n or 'Original')
     after_time = node_after.time and _fmt_time(node_after.time) or ''
 
     _undo_to(current)
