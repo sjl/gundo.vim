@@ -283,10 +283,10 @@ endfunction"}}}
 function! s:GundoOpen()"{{{
     if !exists('g:gundo_py_loaded')
         if s:has_supported_python == 2 && g:gundo_prefer_python3
-            exe 'py3file ' . s:plugin_path . '/gundo.py'
+            exe 'py3file ' . escape(s:plugin_path, ' ') . '/gundo.py'
             python3 initPythonModule()
         else
-            exe 'pyfile ' . s:plugin_path . '/gundo.py'
+            exe 'pyfile ' . escape(s:plugin_path, ' ') . '/gundo.py'
             python initPythonModule()
         endif
 
