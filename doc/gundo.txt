@@ -257,6 +257,9 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+v2.6.0
+    * Fix several Python-related bugs.
+    * Add g:gundo_return_on_revert option.
 v2.5.0
     * Fix the help window to take custom mappings into account.
     * Add g:gundo_playback_delay option.
