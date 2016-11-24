@@ -378,7 +378,7 @@ def _generate_preview_diff(current, node_before, node_after):
     _undo_to(current)
 
     return list(difflib.unified_diff(before_lines, after_lines,
-                                     before_name, after_name,
+                                     str(before_name), str(after_name),
                                      before_time, after_time))
 
 def _generate_change_preview_diff(current, node_before, node_after):
@@ -398,7 +398,7 @@ def _generate_change_preview_diff(current, node_before, node_after):
     _undo_to(current)
 
     return list(difflib.unified_diff(before_lines, after_lines,
-                                     before_name, after_name,
+                                     str(before_name), str(after_name),
                                      before_time, after_time))
 
 def GundoRenderGraph():
