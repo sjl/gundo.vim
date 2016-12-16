@@ -22,6 +22,7 @@ CONTENTS                                                      *Gundo-contents*
         3.10 gundo_auto_preview ........ |gundo_auto_preview|
         3.11 gundo_playback_delay ...... |gundo_playback_delay|
         3.12 gundo_return_on_revert .... |gundo_return_on_revert|
+        3.13 gundo_prefer_python3 ...... |gundo_prefer_python3|
     4. License ......................... |GundoLicense|
     5. Bugs ............................ |GundoBugs|
     6. Contributing .................... |GundoContributing|
@@ -234,10 +235,17 @@ Set this to 0 to keep focus in the Gundo window after a revert.
 
 Default: 1
 
+------------------------------------------------------------------------------
+3.13 g:gundo_prefer_python3                             *gundo_prefer_python3*
+
+Set this to 1 to have Gundo use Python 3 instead of 2 when available.
+
+Default: 0
+
 ==============================================================================
 4. License                                                      *GundoLicense*
 
-GPLv2+. Look it up.
+GPLv2+, just like Mercurial.
 
 ==============================================================================
 5. Bugs                                                            *GundoBugs*
@@ -257,6 +265,10 @@ GitHub: http://github.com/sjl/gundo.vim/
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
 
+v2.6.2
+    * Fix to deal with backwards-incompatible change in Python 3.5's difflib.
+v2.6.1
+    * Add Neovim support.
 v2.6.0
     * Fix several Python-related bugs.
     * Add g:gundo_return_on_revert option.
