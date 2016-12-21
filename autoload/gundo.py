@@ -331,7 +331,7 @@ def changenr(nodes):
 
 # Rendering utility functions
 def _fmt_time(t):
-    return time.strftime('%Y-%m-%d %I:%M:%S %p', time.localtime(float(t)))
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(float(t)))
 
 def _output_preview_text(lines):
     _goto_window_for_buffer_name('__Gundo_Preview__')
