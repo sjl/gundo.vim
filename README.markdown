@@ -26,7 +26,7 @@ Installation and Usage
 
 Check out the [project site][] for installation instructions.
 
-[project site]: http://sjl.bitbucket.org/gundo.vim/
+[project site]: https://sjl.bitbucket.io/gundo.vim/
 
 License
 -------
