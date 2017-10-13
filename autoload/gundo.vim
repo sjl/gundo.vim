@@ -61,6 +61,8 @@ if g:gundo_prefer_python3 && has('python3')"{{{
     let s:has_supported_python = 2
 elseif has('python')"
     let s:has_supported_python = 1
+elseif has('python3')"
+    let s:has_supported_python = 2
 endif
 
 if !s:has_supported_python
