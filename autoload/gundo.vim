@@ -282,7 +282,7 @@ endfunction"}}}
 
 function! s:GundoOpen()"{{{
     if !exists('g:gundo_py_loaded')
-        if s:has_supported_python == 2 && g:gundo_prefer_python3
+        if s:has_supported_python == 2
             exe 'py3file ' . escape(s:plugin_path, ' ') . '/gundo.py'
             python3 initPythonModule()
         else
@@ -403,7 +403,7 @@ endfunction"}}}
 "{{{ Gundo rendering
 
 function! s:GundoRenderGraph()"{{{
-    if s:has_supported_python == 2 && g:gundo_prefer_python3
+    if s:has_supported_python == 2
         python3 GundoRenderGraph()
     else
         python GundoRenderGraph()
@@ -411,7 +411,7 @@ function! s:GundoRenderGraph()"{{{
 endfunction"}}}
 
 function! s:GundoRenderPreview()"{{{
-    if s:has_supported_python == 2 && g:gundo_prefer_python3
+    if s:has_supported_python == 2
         python3 GundoRenderPreview()
     else
         python GundoRenderPreview()
@@ -419,7 +419,7 @@ function! s:GundoRenderPreview()"{{{
 endfunction"}}}
 
 function! s:GundoRenderChangePreview()"{{{
-    if s:has_supported_python == 2 && g:gundo_prefer_python3
+    if s:has_supported_python == 2
         python3 GundoRenderChangePreview()
     else
         python GundoRenderChangePreview()
@@ -431,7 +431,7 @@ endfunction"}}}
 "{{{ Gundo undo/redo
 
 function! s:GundoRevert()"{{{
-    if s:has_supported_python == 2 && g:gundo_prefer_python3
+    if s:has_supported_python == 2
         python3 GundoRevert()
     else
         python GundoRevert()
@@ -439,7 +439,7 @@ function! s:GundoRevert()"{{{
 endfunction"}}}
 
 function! s:GundoPlayTo()"{{{
-    if s:has_supported_python == 2 && g:gundo_prefer_python3
+    if s:has_supported_python == 2
         python3 GundoPlayTo()
     else
         python GundoPlayTo()
