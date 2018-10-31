@@ -57,7 +57,7 @@ if !exists("g:gundo_return_on_revert")"{{{
 endif"}}}
 
 let s:has_supported_python = 0
-if g:gundo_prefer_python3 && has('python3')"{{{
+if has('python3') && (g:gundo_prefer_python3 || !has('python'))"{{{
     let s:has_supported_python = 2
 elseif has('python')"
     let s:has_supported_python = 1
