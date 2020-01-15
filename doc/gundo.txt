@@ -256,11 +256,12 @@ https://github.com/sjl/gundo.vim/issues/
 ==============================================================================
 6. Contributing                                            *GundoContributing*
 
-Think you can make this plugin better? Awesome. Fork it on Source Hut or
-GitHub and send a pull request.
+Think you can make this plugin better? Awesome.
 
-Source Hut: https://hg.sr.ht/~sjl/gundo.vim/
-GitHub: https://github.com/sjl/gundo.vim/
+Email a patch to steve@stevelosh.com or send a pull request.
+
+Mercurial: https://hg.stevelosh.com/gundo.vim/
+GitHub:    https://github.com/sjl/gundo.vim/
 
 ==============================================================================
 7. Changelog                                                  *GundoChangelog*
