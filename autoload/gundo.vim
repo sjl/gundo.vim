@@ -44,7 +44,7 @@ if !exists("g:gundo_close_on_revert")"{{{
     let g:gundo_close_on_revert = 0
 endif"}}}
 if !exists("g:gundo_prefer_python3")"{{{
-    let g:gundo_prefer_python3 = 0
+    let g:gundo_prefer_python3 = 1
 endif"}}}
 if !exists("g:gundo_auto_preview")"{{{
     let g:gundo_auto_preview = 1

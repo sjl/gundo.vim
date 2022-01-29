@@ -240,7 +240,7 @@ Default: 1
 
 Set this to 1 to have Gundo use Python 3 instead of 2 when available.
 
-Default: 0
+Default: 1
 
 ==============================================================================
 4. License                                                      *GundoLicense*
